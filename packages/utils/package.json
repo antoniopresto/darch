@@ -1,6 +1,6 @@
 {
   "name": "@darch/utils",
-  "version": "1.0.31",
+  "version": "1.0.32",
   "main": "dist",
   "typings": "dist",
   "author": "antoniopresto <antoniopresto@gmail.com>",

@@ -1,6 +1,6 @@
 {
   "name": "@darch/schema",
-  "version": "1.0.31",
+  "version": "1.0.32",
   "main": "dist/index.js",
   "author": "antoniopresto <antoniopresto@gmail.com>",
   "license": "MIT",
@@ -26,7 +26,7 @@
     "inference"
   ],
   "dependencies": {
-    "@darch/utils": "^1.0.31"
+    "@darch/utils": "^1.0.32"
   },
   "devDependencies": {
     "@darch/builder": "^1.0.31",
