@@ -1,6 +1,4 @@
-import upperFirst from 'lodash/upperFirst';
-
-import { FieldType, FieldTypeParser } from '../FieldType';
+import { FieldPortableAPIInput, FieldType, FieldTypeParser } from '../FieldType';
 
 export class EnumField<U extends string, T extends Readonly<[U, ...U[]]>> extends FieldType<T[number], 'enum', T> {
   //
@@ -24,8 +22,9 @@ export class EnumField<U extends string, T extends Readonly<[U, ...U[]]>> extend
     return new EnumField(def);
   };
 
-  graphql = (entityName, fieldName) => {
-    const name = `${entityName}${upperFirst(fieldName)}Enum`;
+  graphql = (api: FieldPortableAPIInput) => {
+    const name = this.mountPortableFieldName(api);
+
     return {
       name,
       sdl: `enum ${name} { ${this.def.join(' ')} }`,

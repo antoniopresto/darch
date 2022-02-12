@@ -13,6 +13,7 @@ export class RuntimeError extends Error {
       const stack = (this.stack || '').split('\n');
 
       const newStack = [
+        message,
         ...stack.slice(0, 1).filter((e) => e === '\n'),
         `Details: ${inspectObject(details, { tabSize: 0, depth })}`,
         ...stack.slice(1 + skipStackLines),

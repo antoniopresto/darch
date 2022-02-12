@@ -2,6 +2,7 @@ import { RuntimeError } from '@darch/utils/dist/RuntimeError';
 import { getKeys } from '@darch/utils/dist/getKeys';
 import { camelCase, schemaComposer as defaultSchemaComposer, upperFirst } from 'graphql-compose';
 
+import { TAnyFieldType } from './FieldType';
 import { SchemaDefinitionInput } from './TSchemaConfig';
 import { ParsedFieldDefinition, ParsedSchemaDefinition } from './TSchemaParser';
 import { fieldTypeConstructors } from './fields/fieldTypes';
@@ -56,8 +57,8 @@ export function fieldToGraphql(params: {
         });
       }
 
-      const type = typeConstructor.create(def);
-      const gqlDef = type.graphql(parentName, fieldName);
+      const type: TAnyFieldType = typeConstructor.create(def);
+      const gqlDef = type.graphql({ fieldName, parentName });
 
       if (typeof gqlDef === 'string') {
         return gqlDef;

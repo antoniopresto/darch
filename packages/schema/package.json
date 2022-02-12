@@ -26,8 +26,7 @@
     "inference"
   ],
   "dependencies": {
-    "@darch/utils": "^1.0.31",
-    "ulid": "2.3.0"
+    "@darch/utils": "^1.0.31"
   },
   "devDependencies": {
     "@darch/builder": "^1.0.31",

@@ -1,4 +1,4 @@
-import memo from 'lodash/memoize';
+import { memoize } from '@darch/utils/dist/memoize';
 
 import { FieldDefinitionConfig, SchemaDefinitionInput } from '../TSchemaConfig';
 
@@ -61,4 +61,4 @@ function _isFieldTypeName(t: any): t is FieldTypeName {
   return typeof t === 'string' && fieldTypeConstructors.hasOwnProperty(t);
 }
 
-export const isFieldTypeName = memo(_isFieldTypeName);
+export const isFieldTypeName = memoize(_isFieldTypeName);

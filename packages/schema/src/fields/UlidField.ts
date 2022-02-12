@@ -1,5 +1,5 @@
 import { expectedType } from '@darch/utils/dist/expectedType';
-import { ulid } from 'ulid';
+import { ulid } from '@darch/utils/dist/ulid';
 
 import { FieldType, FieldTypeParser } from '../FieldType';
 

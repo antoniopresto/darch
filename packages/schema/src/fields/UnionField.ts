@@ -1,6 +1,6 @@
 import { getTypeName } from '@darch/utils/dist/getTypeName';
 import { inspectObject } from '@darch/utils/dist/inspectObject';
-import uniq from 'lodash/uniq';
+import { uniq } from '@darch/utils/dist/uniq';
 
 import { FieldType, FieldTypeParser } from '../FieldType';
 import type { FieldDefinitionConfig } from '../TSchemaConfig';
