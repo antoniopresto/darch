@@ -91,7 +91,7 @@ export function parseSchemaFields(params: {
     }
 
     const Constructor = fieldTypeConstructors[definition.type];
-    const fieldInstance = new Constructor(definition.def);
+    const fieldInstance = Constructor.create(definition.def);
     return {
       parsed: fieldInstance.parse(value),
       errors: [],

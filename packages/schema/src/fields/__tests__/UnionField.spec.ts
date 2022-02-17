@@ -463,12 +463,23 @@ describe('Union', () => {
           optional: true,
           list: true,
         },
-        // union4ListOptional: {
-        //   type: 'union',
-        //   def: [['true', 'false'], 'boolean?'],
-        //   optional: false, // FIXME
-        //   list: true,
-        // },
+        union4ListOptional: {
+          type: 'union',
+          def: [['true', 'false'], 'boolean?'], // list containing undefined | boolean | 'true' | 'false'
+          optional: false,
+          list: true,
+        },
+        union5ListOptional: {
+          type: 'union',
+          def: [
+            {
+              enum: ['true', 'false'],
+            },
+            'boolean?', // list containing undefined | boolean | 'true' | 'false'
+          ],
+          optional: false,
+          list: true, // list
+        },
       } as const);
 
       type QBool = 'true' | 'false' | boolean;
@@ -482,7 +493,8 @@ describe('Union', () => {
         union2Optional?: QBool;
         union3Optional?: QBool;
         union3ListOptional?: QBool[] | undefined;
-        // union4ListOptional: (QBool | undefined)[];
+        union4ListOptional: (QBool | undefined)[]; // list containing undefined | boolean | 'true' | 'false'
+        union5ListOptional: (QBool | undefined)[]; // list containing undefined | boolean | 'true' | 'false'
       };
 
       type SchemaInferred = Infer<typeof schema>;
