@@ -3,6 +3,7 @@ import { getTypeName } from '@darch/utils/dist/getTypeName';
 import { upperFirst } from '@darch/utils/dist/upperFirst';
 
 import { FieldTypeParser, parseValidationError, ValidationCustomMessage } from './applyValidator';
+import { FieldTypeConfig } from './fields/_definitions';
 export * from './applyValidator';
 
 export type FieldTypeGraphql =
@@ -16,14 +17,18 @@ export type FieldPortableAPIInput = {
   parentName: string;
 };
 
-export type TAnyFieldType = FieldType<any, any, any>;
+export type TAnyFieldType = FieldType<any, any>;
 
-export abstract class FieldType<Type, TypeName extends string, Def extends Record<string, any> | any[] | undefined> {
-  readonly typeName: TypeName;
-  readonly _infer!: Type;
-  readonly def: Def;
+export abstract class FieldType<Config extends FieldTypeConfig> {
+  readonly _infer!: Config['__infer'];
+  readonly typeName: Config['typeName'];
+  readonly def: Config['def'];
+  readonly config: Config;
 
-  protected constructor(typeName: TypeName, def: Def) {
+  protected constructor(config: Config) {
+    this.config = config;
+    const { def, typeName } = this.config;
+
     this.typeName = typeName;
     expectedType({ [`${typeName} definition`]: def }, ['object', 'array', 'undefined']);
     const defKeys = def ? Object.keys(def) : undefined;
@@ -105,6 +110,6 @@ export abstract class FieldType<Type, TypeName extends string, Def extends Recor
   };
 }
 
-export function isFieldType(t: any): t is FieldType<any, any, any> {
+export function isFieldType(t: any): t is FieldType<any, any> {
   return t?.__isFieldType === true;
 }
