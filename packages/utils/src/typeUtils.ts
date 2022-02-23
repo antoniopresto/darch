@@ -102,3 +102,5 @@ export type NullableByKind<T, Kind extends 'nullable' | 'required'> = {
     ? never
     : Temp
   : never;
+
+export type Simplify<T> = {[KeyType in keyof T]: T[KeyType]};

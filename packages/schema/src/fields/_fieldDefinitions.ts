@@ -1,9 +1,6 @@
-type Writeable<T> = {
-  -readonly [P in keyof T]: T[P];
-};
 type WR<T> = T | Readonly<T>;
 
-export interface CommonSchemaFieldConfig {
+export interface CommonFieldConfig {
   list?: boolean;
   optional?: boolean;
   description?: string;
@@ -19,9 +16,9 @@ export interface FieldTypeConfig<
       | Readonly<Record<string, unknown> | any[]>;
     __infer: unknown;
   }
-> extends CommonSchemaFieldConfig {
+> extends CommonFieldConfig {
   type: ConfigConfig['type'];
-  def: Writeable<ConfigConfig['def']>;
+  def: ConfigConfig['def'];
   __infer: ConfigConfig['__infer'];
 }
 
@@ -71,13 +68,11 @@ export type FieldConfigEmail = FieldTypeConfig<{
   __infer: string;
 }>;
 
-export type FieldConfigEnum<
-  T extends WR<string>,
-  Def extends WR<[T, ...T[]]>
-> = FieldTypeConfig<{
+type _EnumFieldDef = WR<string[]>;
+export type FieldConfigEnum<Def extends _EnumFieldDef> = FieldTypeConfig<{
   type: 'enum';
-  def: Def;
-  __infer: T[number];
+  def: WR<Def>;
+  __infer: Def[number];
 }>;
 
 export type FieldConfigFloat = FieldTypeConfig<{
@@ -135,12 +130,12 @@ export type FieldConfigString = FieldTypeConfig<{
   __infer: string;
 }>;
 
-export type FieldConfigSchema<Def extends Record<string, any>> =
-  FieldTypeConfig<{
-    type: 'schema';
-    def: Def; // FIXME
-    __infer: any; // FIXME
-  }>;
+type _SchemaFieldDef = Record<string, any>;
+export type FieldConfigSchema<Def extends _SchemaFieldDef> = FieldTypeConfig<{
+  type: 'schema';
+  def: Def; // FIXME
+  __infer: any; // FIXME
+}>;
 
 export type FieldConfigUlid = FieldTypeConfig<{
   type: 'ulid';
@@ -158,9 +153,8 @@ export type FieldConfigUndefined = FieldTypeConfig<{
   __infer: undefined;
 }>;
 
-export type FieldConfigUnion<
-  Def extends WR<{ type: FieldTypeNames; __infer: any }[]>
-> = FieldTypeConfig<{
+type _UnionFieldDef = { type: FieldTypeNames; __infer: any }[];
+export type FieldConfigUnion<Def extends _UnionFieldDef> = FieldTypeConfig<{
   type: 'union';
   def: Def;
   __infer: Def[number]['__infer'];
@@ -172,7 +166,7 @@ export type FieldConfigUnknown = FieldTypeConfig<{
   __infer: unknown;
 }>;
 
-export type FieldTypes = {
+export type FieldTypesRecord<T = undefined> = {
   any: FieldConfigAny;
   boolean: FieldConfigBoolean;
   cursor: FieldConfigCursor;
@@ -186,11 +180,9 @@ export type FieldTypes = {
   ulid: FieldConfigUlid;
   undefined: FieldConfigUndefined;
   unknown: FieldConfigUnknown;
-
-  // types with required definition
-  schema: FieldConfigSchema<any>;
-  union: FieldConfigUnion<any>;
-  enum: FieldConfigEnum<any, any>;
+  schema: T extends _SchemaFieldDef ? FieldConfigSchema<T> : never;
+  union: T extends _UnionFieldDef ? FieldConfigUnion<T> : never;
+  enum: T extends _EnumFieldDef ? FieldConfigEnum<T> : never;
 };
 
-export type FieldTypeNames = Extract<keyof FieldTypes, string>;
+export type FieldTypeNames = Extract<keyof FieldTypesRecord, string>;
