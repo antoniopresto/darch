@@ -3,36 +3,52 @@ import { Simplify } from '@darch/utils/dist/typeUtils';
 import { FieldTypeNames, FieldTypesRecord } from './_fieldDefinitions';
 import { FieldTypeName } from './fieldTypes';
 
-export type ParseFields<Fields extends Record<string, SchemaFieldInput>> = {
-  [K in keyof Fields]: ParseField<Fields[K]>;
-};
-
 export type SchemaFieldInput =
-  | ParsedFieldDef
-  | FieldAsString
-  | FieldAsTypeKey
-  | SchemaFieldInput[];
+  | FinalFieldDefinition // ok __infer
+  | FieldAsString // ok __infer
+  | FlattenFieldDefinition
+  | SchemaFieldInput[]; // ok __infer
+// - [] list
+// - [] optional
+// - [] optional by union
+//  - [] optional by union + list
 
-export type ParseFieldInput<Input> = {
-  -readonly [K in keyof Input]: ParseField<Input[K]>['__infer'];
+export type InferFields<Input> = {
+  -readonly [K in keyof Input]: ToFinalField<Input[K]>['__infer'];
 };
 
-// type P = ParseFieldInput<{
-//   unUn: ['int', 'undefined'];
-//   unUn2: ['int?', 'string'];
-//   a: 'string';
-//   b: '[int]?';
-//   mail: 'email';
-//   en: { enum: ['a', 'b'] };
-//   un: [
-//     { enum: ['a', 'b'] },
-//     'int',
-//     'undefined',
-//     { schema: { name: 'string'; age: 'int' } }
-//   ];
-// }>;
+export type ParseFields<Input> = {
+  -readonly [K in keyof Input]: ToFinalField<Input[K]>;
+};
 
-export type FieldAsTypeKey = {
+type P = ParseFields<{
+  uni1: { union: ['string'] }; // FIXME
+  // unUn: ['int', 'undefined'];
+  // unUn2: ['int?', 'string'];
+  // a: 'string';
+  // b: '[int]?';
+  // mail: 'email';
+  en: { enum: ['a', 'b'] }; // FIXME
+  // un: [
+  //   { enum: ['a', 'b'] },
+  //   'int',
+  //   'undefined',
+  //   { schema: { name: 'string'; age: 'int' } }
+  // ];
+}>;
+
+export type FinalFieldDefinition = {
+  [K in FieldTypeNames]: {
+    type: K;
+    def: FieldTypesRecord[K][0];
+    list?: boolean;
+    optional?: boolean;
+    description?: string;
+    __infer: unknown;
+  };
+}[FieldTypeNames];
+
+export type FlattenFieldDefinition = {
   [type in FieldTypeNames]: {
     [K in type]: FieldTypesRecord[K] extends { def: infer Def }
       ? Def | Readonly<Def>
@@ -46,63 +62,79 @@ export type FieldAsString =
   | `[${FieldTypeName}]`
   | `[${FieldTypeName}]?`;
 
-export type ParsedFieldDef = {
-  [K in FieldTypeNames]: {
-    type: K;
-    def: FieldTypesRecord[K]['def'];
-    list?: boolean;
-    optional?: boolean;
-    description?: string;
-    __infer: unknown;
-  };
-}[FieldTypeNames];
+type ToFinalField<Base> = _handleOptional<
+  _handleList<
+    _injectInfer<
+      //
+      // ==== start handling fieldType instance ====
+      Base extends { __isFieldType: true; parsed: infer Parsed }
+        ? Parsed
+        : // === end handling fieldType instance
 
-type ParsedWithInfer<T> = T extends { type: FieldTypeNames; def: infer Def }
+        // === start handling union type ===
+        Base extends Array<infer Item> | Readonly<Array<infer Item>>
+        ? Item extends SchemaFieldInput
+          ? {
+              type: 'union';
+              def: ToFinalField<Item>[];
+              list: Item extends { list: true } ? true : undefined;
+              optional: Item extends { optional: true } ? true : undefined;
+              description: string;
+            }
+          : never
+        : // === end handling union type
+
+        // ==== start handling FieldAsString ====
+        Base extends FieldAsString
+        ? ParseStringDefinition<Base>
+        : // ==== end handling FieldAsString ====
+
+          // ==== start handling FieldAsTypeKey ====
+          {
+            [K in keyof ParseFieldAsKey<Base>]: ParseFieldAsKey<Base>[K];
+          }
+    >
+  >
+>;
+
+// inject  the `__infer` property
+type _injectInfer<T> = T extends { __infer: {} }
+  ? T
+  : T extends {
+      type: FieldTypeNames;
+      def: infer Def;
+    }
   ? Simplify<
       T & {
-        // TODO handle list, optional - no infer
         __infer: T['type'] extends 'schema'
           ? {
-              [K in keyof Def]: ParseField<Def[K]>['__infer'];
+              [K in keyof Def]: ToFinalField<Def[K]>['__infer'];
             }
-          : FieldTypesRecord<Def>[T['type']]['__infer'];
+          : FieldTypesRecord<Def>[T['type']][1];
       }
     >
   : never;
 
-type P = ParseField<{ union: ['int?'] }>;
+type Molejo<A, B> = Simplify<Omit<A, keyof B> & B>;
 
-type ParseField<Base> = ParsedWithInfer<
-  //
-  // ==== start handling fieldType instance ====
-  Base extends { __isFieldType: true; parsed: infer Parsed }
-    ? Parsed
-    : // === end handling fieldType instance
+type _handleList<T> = T extends {
+  __infer: infer Infer;
+  list?: infer List;
+}
+  ? [List] extends [true]
+    ? Molejo<T, { __infer: Infer[] }>
+    : T
+  : never;
 
-    // === start handling union type ===
-    Base extends Array<infer Item> | Readonly<Array<infer Item>>
-    ? Item extends SchemaFieldInput
-      ? {
-          type: 'union';
-          def: ParseField<Item>[];
-          // TODO handle list, optional, etc here?? organize where each step is parsed
-          list: boolean;
-          optional: boolean;
-          description: string;
-        }
-      : never
-    : // === end handling union type
+type _handleOptional<T> = T extends {
+  __infer: infer Infer;
+  optional?: infer Optional;
+}
+  ? [Optional] extends [true]
+    ? Molejo<T, { __infer: Infer | undefined }>
+    : T
+  : never;
 
-    // ==== start handling FieldAsString ====
-    Base extends FieldAsString
-    ? ParseStringDefinition<Base>
-    : // ==== end handling FieldAsString ====
-
-      // ==== start handling FieldAsTypeKey ====
-      {
-        [K in keyof ParseFieldAsKey<Base>]: ParseFieldAsKey<Base>[K];
-      }
->;
 // ==== end handling FieldAsTypeKey ====
 // === END ParseField == //
 
