@@ -1,25 +1,26 @@
+import { InferFields } from './_parseFields';
+
 export interface CommonFieldConfig {
   list?: boolean;
   optional?: boolean;
   description?: string;
 }
 
+export type TCursor = {
+  pk: string;
+  prefix: string;
+  delimiter: string;
+  limit?: number;
+  after?: string;
+  fields?: string[];
+};
+
 export type FieldTypesRecord<Def = undefined> = {
   any: [undefined, any];
 
   boolean: [undefined, boolean];
 
-  cursor: [
-    undefined,
-    {
-      pk: string;
-      prefix: string;
-      delimiter: string;
-      limit?: number;
-      after?: string;
-      fields?: string[];
-    }
-  ];
+  cursor: [undefined, TCursor];
 
   date: [
     (
@@ -72,7 +73,9 @@ export type FieldTypesRecord<Def = undefined> = {
       type: { __infer: any };
     },
 
-    Def extends { keyType: 'int' | 'float' }
+    [Def] extends [undefined]
+      ? { [K: string]: any }
+      : Def extends { keyType: 'int' | 'float' }
       ? {
           [K: number]: Def extends { type: { __infer: infer Infer } }
             ? Infer
@@ -111,12 +114,22 @@ export type FieldTypesRecord<Def = undefined> = {
 
   unknown: [undefined, unknown];
 
-  schema: [Def, any /*FIXME*/];
+  schema: [
+    Def,
+    
+    [Def] extends [undefined]
+      ? never
+      : [Def] extends [{ [K: string]: any }]
+      ? InferFields<Def>
+      : never
+  ];
 
   union: [
-    { type: FieldTypeNames; __infer: any }[],
+    { type: FieldTypeName; __infer: any }[],
 
-    Def extends { type: FieldTypeNames; __infer: any }[]
+    [Def] extends [undefined]
+      ? never
+      : Def extends { type: FieldTypeName; __infer: any }[]
       ? Def[number]['__infer']
       : never
   ];
@@ -124,8 +137,12 @@ export type FieldTypesRecord<Def = undefined> = {
   enum: [
     Array<string> | Readonly<Array<string>>,
     //
-    Def extends Array<string> | Readonly<Array<string>> ? Def[number] : never
+    [Def] extends [undefined]
+      ? never
+      : Def extends Array<string> | Readonly<Array<string>>
+      ? Def[number]
+      : never
   ];
 };
 
-export type FieldTypeNames = Extract<keyof FieldTypesRecord, string>;
+export type FieldTypeName = Extract<keyof FieldTypesRecord, string>;

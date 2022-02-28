@@ -27,7 +27,7 @@
     "isolatedModules": true,
     "noImplicitAny": false
   },
-  "exclude": [
-    "./src/**/__tests__"
+  "include": [
+    "./src/**/*"
   ]
 }
