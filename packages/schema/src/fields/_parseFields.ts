@@ -1,44 +1,20 @@
-import { Simplify } from '@darch/utils/dist/typeUtils';
-
-import { FieldTypeNames, FieldTypesRecord } from './_fieldDefinitions';
-import { FieldTypeName } from './fieldTypes';
+import { FieldTypeName, FieldTypesRecord } from './_fieldDefinitions';
+import { IsNullable, OnlyKnown, Simplify } from '@darch/utils/dist/typeUtils';
 
 export type SchemaFieldInput =
-  | FinalFieldDefinition // ok __infer
-  | FieldAsString // ok __infer
+  | FinalFieldDefinition
+  | FieldAsString
   | FlattenFieldDefinition
-  | SchemaFieldInput[]; // ok __infer
-// - [] list
-// - [] optional
-// - [] optional by union
-//  - [] optional by union + list
+  | SchemaFieldInput[];
 
-export type InferFields<Input> = {
-  -readonly [K in keyof Input]: ToFinalField<Input[K]>['__infer'];
-};
+export type InferField<Input> = ToFinalField<Input>['__infer'];
 
 export type ParseFields<Input> = {
   -readonly [K in keyof Input]: ToFinalField<Input[K]>;
 };
 
-type P = ParseFields<{
-  uni1: { union: ['string'] }; // FIXME
-  // unUn: ['int', 'undefined'];
-  // unUn2: ['int?', 'string'];
-  // a: 'string';
-  // b: '[int]?';
-  // mail: 'email';
-  en: { enum: ['a', 'b'] }; // FIXME
-  // un: [
-  //   { enum: ['a', 'b'] },
-  //   'int',
-  //   'undefined',
-  //   { schema: { name: 'string'; age: 'int' } }
-  // ];
-}>;
-
 export type FinalFieldDefinition = {
-  [K in FieldTypeNames]: {
+  [K in FieldTypeName]: {
     type: K;
     def: FieldTypesRecord[K][0];
     list?: boolean;
@@ -46,15 +22,15 @@ export type FinalFieldDefinition = {
     description?: string;
     __infer: unknown;
   };
-}[FieldTypeNames];
+}[FieldTypeName];
 
 export type FlattenFieldDefinition = {
-  [type in FieldTypeNames]: {
+  [type in FieldTypeName]: {
     [K in type]: FieldTypesRecord[K] extends { def: infer Def }
       ? Def | Readonly<Def>
       : never;
   };
-}[FieldTypeNames];
+}[FieldTypeName];
 
 export type FieldAsString =
   | FieldTypeName
@@ -62,7 +38,7 @@ export type FieldAsString =
   | `[${FieldTypeName}]`
   | `[${FieldTypeName}]?`;
 
-type ToFinalField<Base> = _handleOptional<
+export type ToFinalField<Base> = _handleOptional<
   _handleList<
     _injectInfer<
       //
@@ -101,18 +77,18 @@ type ToFinalField<Base> = _handleOptional<
 type _injectInfer<T> = T extends { __infer: {} }
   ? T
   : T extends {
-      type: FieldTypeNames;
+      type: FieldTypeName;
       def: infer Def;
     }
-  ? Simplify<
-      T & {
-        __infer: T['type'] extends 'schema'
-          ? {
-              [K in keyof Def]: ToFinalField<Def[K]>['__infer'];
-            }
-          : FieldTypesRecord<Def>[T['type']][1];
-      }
-    >
+  ? T & {
+      __infer: IsNullable<FieldTypesRecord<any>[T['type']][0]> extends true
+        ? FieldTypesRecord<Def>[T['type']][1]
+        : // don't try to infer fields where definition is
+        // required (union, schema..) when def is invalid
+        [OnlyKnown<Def>] extends [never]
+        ? never
+        : FieldTypesRecord<Def>[T['type']][1];
+    }
   : never;
 
 type Molejo<A, B> = Simplify<Omit<A, keyof B> & B>;
@@ -140,7 +116,7 @@ type _handleOptional<T> = T extends {
 
 // ==== start parsing FieldAsTypeKey utils ====
 type ExtractSingleKeyDef<Input> = Input extends {
-  [K in keyof Input as K extends FieldTypeNames ? K : never]: infer Def;
+  [K in keyof Input as K extends FieldTypeName ? K : never]: infer Def;
 }
   ? [keyof Def] extends [never]
     ? { def: undefined }
@@ -148,7 +124,7 @@ type ExtractSingleKeyDef<Input> = Input extends {
   : never;
 
 type ExtractSingleKeyType<Input> = keyof Input extends infer K
-  ? K extends FieldTypeNames
+  ? K extends FieldTypeName
     ? { type: K }
     : never
   : never;

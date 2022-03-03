@@ -1,4 +1,6 @@
-import { InferFields } from './_parseFields';
+import { InferField } from './_parseFields';
+import { NullableToPartial } from '@darch/utils/dist/typeUtils';
+import { RecordFieldDef } from './RecordField';
 
 export interface CommonFieldConfig {
   list?: boolean;
@@ -68,10 +70,7 @@ export type FieldTypesRecord<Def = undefined> = {
   null: [undefined, null];
 
   record: [
-    {
-      keyType: 'string';
-      type: { __infer: any };
-    },
+    RecordFieldDef | undefined,
 
     [Def] extends [undefined]
       ? { [K: string]: any }
@@ -116,11 +115,13 @@ export type FieldTypesRecord<Def = undefined> = {
 
   schema: [
     Def,
-    
+
     [Def] extends [undefined]
       ? never
       : [Def] extends [{ [K: string]: any }]
-      ? InferFields<Def>
+      ? NullableToPartial<{
+          [K in keyof Def]: InferField<Def[K]>;
+        }>
       : never
   ];
 

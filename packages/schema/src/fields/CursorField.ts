@@ -1,6 +1,6 @@
 import { FieldType, FieldTypeParser } from '../FieldType';
 import type { Schema } from '../Schema';
-import { TypeFromSchema } from '../TSchemaParser';
+import { Infer } from '../TSchemaParser';
 
 const def = {
   pk: 'string',
@@ -13,7 +13,7 @@ const def = {
 
 type CursorDef = typeof def;
 
-export type CursorType = TypeFromSchema<CursorDef>;
+export type CursorType = Infer<CursorDef>;
 
 let cursorSchema: Schema<CursorDef> | undefined;
 

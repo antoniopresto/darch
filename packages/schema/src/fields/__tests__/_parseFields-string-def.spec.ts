@@ -5,35 +5,13 @@ import { InferField } from '../_parseFields';
 
 type AnyRecord = { [K: string]: any };
 
-// export type SchemaFieldInput =
-//   | FinalFieldDefinition
-//   | FieldAsString
-//   | FlattenFieldDefinition
-//   | SchemaFieldInput[];
-
-//   any:
-//   boolean:
-//   cursor:
-//   date:
-//   email:
-//   float:
-//   int:
-//   null:
-//   record:
-//   string:
-//   ulid:
-//   undefined:
-//   unknown:
-//   schema:
-//   union:
-//   enum:
-
 // ====== SIMPLE STRING DEF =======
 //   any:
 assert<IsExact<InferField<'any'>, any>>(true);
 
 //   boolean:
-assert<IsExact<InferField<'boolean'>, boolean>>(true);
+type TBoolean = InferField<'boolean'>;
+assert<IsExact<TBoolean, boolean>>(true);
 
 //   cursor:
 assert<IsExact<InferField<'cursor'>, TCursor>>(true); //   date:
@@ -69,7 +47,8 @@ assert<IsExact<InferField<'undefined'>, undefined>>(true);
 assert<IsExact<InferField<'unknown'>, unknown>>(true);
 
 //   schema:
-assert<IsExact<InferField<'schema'>, never>>(true);
+type TSchema = InferField<'schema'>;
+assert<IsExact<TSchema, never>>(true);
 
 //   union:
 assert<IsExact<InferField<'union'>, never>>(true);
@@ -101,7 +80,8 @@ assert<IsExact<InferField<'[float]'>, number[]>>(true);
 assert<IsExact<InferField<'[int]'>, number[]>>(true);
 
 //   null:
-assert<IsExact<InferField<'[null]'>, null[]>>(true);
+type TNullList = InferField<'[null]'>;
+assert<IsExact<TNullList, null[]>>(true);
 
 //   record:
 assert<IsExact<InferField<'[record]'>, AnyRecord[]>>(true);
@@ -157,7 +137,8 @@ assert<IsExact<InferField<'[null]?'>, null[] | undefined>>(true);
 assert<IsExact<InferField<'[record]?'>, AnyRecord[] | undefined>>(true);
 
 //   string:
-assert<IsExact<InferField<'[string]?'>, string[] | undefined>>(true);
+type TStringOptList = InferField<'[string]?'>;
+assert<IsExact<TStringOptList, string[] | undefined>>(true);
 
 //   ulid:
 assert<IsExact<InferField<'[ulid]?'>, string[] | undefined>>(true);
@@ -166,7 +147,8 @@ assert<IsExact<InferField<'[ulid]?'>, string[] | undefined>>(true);
 assert<IsExact<InferField<'[undefined]?'>, undefined[] | undefined>>(true);
 
 //   unknown:
-assert<IsExact<InferField<'[unknown]?'>, unknown[] | undefined>>(true);
+type TUnknownOptList = InferField<'[unknown]?'>;
+assert<IsExact<TUnknownOptList, unknown[] | undefined>>(true);
 
 //   schema:
 assert<IsExact<InferField<'[schema]?'>, never[] | undefined>>(true);
@@ -176,12 +158,3 @@ assert<IsExact<InferField<'[union]?'>, never[] | undefined>>(true);
 
 //   enum:
 assert<IsExact<InferField<'[enum]?'>, never[] | undefined>>(true);
-
-// FIXME __infer as optional
-
-type P<T> = T | null | undefined;
-
-
-test('test', () => {
-  expect(1).toBe(1);
-});

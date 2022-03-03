@@ -1,7 +1,7 @@
 import { RuntimeError } from '@darch/utils/dist/RuntimeError';
 import { assert, IsExact } from 'conditional-type-checks';
 
-import { TypeFromSchema } from '../TSchemaParser';
+import { Infer } from '../TSchemaParser';
 import { BooleanField } from '../fields/BooleanField';
 import { CursorField, CursorType } from '../fields/CursorField';
 import { DateField } from '../fields/DateField';
@@ -87,7 +87,7 @@ describe('FieldTypes', () => {
           '}'
       );
 
-      type T = TypeFromSchema<typeof def>;
+      type T = Infer<typeof def>;
 
       assert<
         IsExact<
@@ -143,7 +143,7 @@ describe('FieldTypes', () => {
           '}'
       );
 
-      type T = TypeFromSchema<typeof def>;
+      type T = Infer<typeof def>;
 
       assert<
         IsExact<
@@ -201,7 +201,7 @@ describe('FieldTypes', () => {
           '}'
       );
 
-      type T = TypeFromSchema<typeof def>;
+      type T = Infer<typeof def>;
 
       assert<
         IsExact<
@@ -258,7 +258,7 @@ describe('FieldTypes', () => {
           '}'
       );
 
-      type T = TypeFromSchema<typeof def>;
+      type T = Infer<typeof def>;
 
       assert<
         IsExact<
@@ -308,7 +308,7 @@ describe('FieldTypes', () => {
           '}'
       );
 
-      type T = TypeFromSchema<typeof def>;
+      type T = Infer<typeof def>;
 
       assert<
         IsExact<
@@ -361,7 +361,7 @@ describe('FieldTypes', () => {
           '}'
       );
 
-      type T = TypeFromSchema<typeof def>;
+      type T = Infer<typeof def>;
 
       assert<
         IsExact<
@@ -437,7 +437,7 @@ describe('FieldTypes', () => {
       );
 
       type AnyRecord = Record<string, any>;
-      type T = TypeFromSchema<typeof def>;
+      type T = Infer<typeof def>;
 
       assert<
         IsExact<
@@ -530,7 +530,7 @@ describe('FieldTypes', () => {
           '}'
       );
 
-      type T = TypeFromSchema<typeof def>;
+      type T = Infer<typeof def>;
 
       assert<
         IsExact<
@@ -607,7 +607,7 @@ describe('FieldTypes', () => {
           '}'
       );
 
-      type T = TypeFromSchema<typeof def>;
+      type T = Infer<typeof def>;
 
       assert<
         IsExact<
@@ -661,7 +661,7 @@ describe('FieldTypes', () => {
           '}'
       );
 
-      type T = TypeFromSchema<typeof def>;
+      type T = Infer<typeof def>;
 
       assert<
         IsExact<
@@ -721,7 +721,7 @@ describe('FieldTypes', () => {
           '}'
       );
 
-      type T = TypeFromSchema<typeof def>;
+      type T = Infer<typeof def>;
 
       assert<
         IsExact<

@@ -6,10 +6,10 @@ import { JSONSchema4 } from 'json-schema';
 
 import { isSchema, Schema } from './Schema';
 import { SchemaDefinitionInput } from './TSchemaConfig';
-import { AnyParsedFieldDefinition, AnyParsedSchemaDefinition, isSchemaAsFieldDef } from './TSchemaParser';
-import { RecordFieldDef } from './fields/RecordField';
+import { AnyParsedSchemaDefinition } from './TSchemaParser';
 import { FieldTypeName } from './fields/fieldTypes';
 import { parseFieldDefinitionConfig } from './parseSchemaDefinition';
+import { FinalFieldDefinition } from './fields/_parseFields';
 
 /**
  * Converts a schema to a json-schema format
@@ -18,14 +18,12 @@ import { parseFieldDefinitionConfig } from './parseSchemaDefinition';
  */
 export function schemaToJSON(
   parentName: string,
-  schema: Schema<any> | SchemaDefinitionInput
+  schema: Schema<SchemaDefinitionInput> | SchemaDefinitionInput
 ): JSONSchema4 & { properties: JSONSchema4 } {
   let definition: AnyParsedSchemaDefinition;
 
   if (isSchema(schema)) {
     definition = schema.definition as AnyParsedSchemaDefinition;
-  } else if (isSchemaAsFieldDef(schema)) {
-    definition = schema.def;
   } else {
     definition = schema as AnyParsedSchemaDefinition;
   }
@@ -48,7 +46,11 @@ export function schemaToJSON(
   }
 
   getKeys(definition).forEach((fieldName) => {
-    const parsedField = parseField({ field: definition[fieldName], fieldName, parentName });
+    const parsedField = parseField({
+      field: definition[fieldName] as any,
+      fieldName,
+      parentName,
+    });
     if (parsedField.required) {
       required.push(fieldName);
     }
@@ -65,7 +67,7 @@ type ParsedField = {
 
 function parseField(params: {
   fieldName: string;
-  field: AnyParsedFieldDefinition;
+  field: FinalFieldDefinition;
   parentName: string | null;
 }): ParsedField {
   const { field, fieldName, parentName } = params;
@@ -84,7 +86,11 @@ function parseField(params: {
   }
 
   if (list) {
-    const parsedListItem = parseField({ fieldName, field: { ...field, list: false }, parentName });
+    const parsedListItem = parseField({
+      fieldName,
+      field: { ...field, list: false },
+      parentName,
+    });
 
     return {
       required: !optional,
@@ -147,12 +153,16 @@ function parseField(params: {
       jsonItem.tsType = 'unknown';
     },
     schema() {
-      Object.assign(jsonItem, schemaToJSON(parentName || fieldName, field.def as any), {
-        title: '',
-      });
+      Object.assign(
+        jsonItem,
+        schemaToJSON(parentName || fieldName, field.def as any),
+        {
+          title: '',
+        }
+      );
     },
     union() {
-      const def = field.def as AnyParsedFieldDefinition[];
+      const def = field.def as FinalFieldDefinition[];
       expectedType({ def }, 'array');
 
       jsonItem.anyOf = def.map((type) => {
@@ -160,10 +170,20 @@ function parseField(params: {
       });
     },
     record() {
-      const def: RecordFieldDef = field.def;
+      if (field.type !== 'record' || !field.def) {
+        throw new RuntimeError(`invalid record field definition.`, {
+          fieldDef: field,
+        });
+      }
+
+      const def = field.def;
       const parsedType: any = parseFieldDefinitionConfig(def.type);
 
-      const type = parseField({ field: parsedType, fieldName, parentName }).jsonItem;
+      const type = parseField({
+        field: parsedType,
+        fieldName,
+        parentName,
+      }).jsonItem;
 
       jsonItem.type = 'object';
       jsonItem.patternProperties = {

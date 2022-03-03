@@ -3,7 +3,6 @@ import { getTypeName } from '@darch/utils/dist/getTypeName';
 import { upperFirst } from '@darch/utils/dist/upperFirst';
 
 import { FieldTypeParser, parseValidationError, ValidationCustomMessage } from './applyValidator';
-import { FieldTypeConfig } from './fields/_definitions';
 export * from './applyValidator';
 
 export type FieldTypeGraphql =
@@ -17,27 +16,23 @@ export type FieldPortableAPIInput = {
   parentName: string;
 };
 
-export type TAnyFieldType = FieldType<any, any>;
+export type TAnyFieldType = FieldType<any, any, any>;
 
-export abstract class FieldType<Config extends FieldTypeConfig> {
-  readonly _infer!: Config['__infer'];
-  readonly typeName: Config['typeName'];
-  readonly def: Config['def'];
-  readonly config: Config;
-
-  protected constructor(config: Config) {
-    this.config = config;
-    const { def, typeName } = this.config;
-
+export abstract class FieldType<Type, TypeName extends string, Def extends Record<string, any> | any[] | undefined> {
+  readonly typeName: TypeName;
+  readonly _infer!: Type;
+  readonly def: Def;
+  
+  protected constructor(typeName: TypeName, def: Def) {
     this.typeName = typeName;
     expectedType({ [`${typeName} definition`]: def }, ['object', 'array', 'undefined']);
     const defKeys = def ? Object.keys(def) : undefined;
-
+    
     if (defKeys?.length) {
       this.def = def;
     }
   }
-
+  
   validate(input: any): input is Type {
     try {
       this.parse(input);
@@ -46,30 +41,30 @@ export abstract class FieldType<Config extends FieldTypeConfig> {
       return false;
     }
   }
-
+  
   isOptional = false;
   isList = false;
-
+  
   optional(): this & { isOptional: true } {
     this.isOptional = true;
     return this as any;
   }
-
+  
   list(): this & { isList: true } {
     this.isList = true;
     return this as any;
   }
-
+  
   applyParser = <Type>(parser: { preParse?(input: any): Type; parse(input: any): Type }): FieldTypeParser<Type> => {
     return (input: any, customMessage?: ValidationCustomMessage) => {
       if (parser.preParse) {
         input = parser.preParse(input);
       }
-
+      
       if (input === undefined && !this.isOptional) {
         throw new Error(`Required field`);
       }
-
+      
       if (this.isList) {
         if (!Array.isArray(input)) {
           throw new Error(`expected Array, found ${getTypeName(input)}`);
@@ -87,7 +82,7 @@ export abstract class FieldType<Config extends FieldTypeConfig> {
         });
         return values;
       }
-
+      
       try {
         return parser.parse(input);
       } catch (originalError: any) {
@@ -95,13 +90,13 @@ export abstract class FieldType<Config extends FieldTypeConfig> {
       }
     };
   };
-
+  
   abstract parse: FieldTypeParser<Type>;
-
+  
   readonly __isFieldType = true;
-
+  
   abstract graphql(api: FieldPortableAPIInput): FieldTypeGraphql;
-
+  
   __portableName: string | undefined;
   mountPortableFieldName = (api: FieldPortableAPIInput) => {
     if (this.__portableName) return this.__portableName;
@@ -110,6 +105,6 @@ export abstract class FieldType<Config extends FieldTypeConfig> {
   };
 }
 
-export function isFieldType(t: any): t is FieldType<any, any> {
+export function isFieldType(t: any): t is FieldType<any, any, any> {
   return t?.__isFieldType === true;
 }

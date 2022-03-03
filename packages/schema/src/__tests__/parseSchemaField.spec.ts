@@ -1,7 +1,7 @@
 import { assert, IsExact } from 'conditional-type-checks';
 
 import { createSchema } from '../Schema';
-import { TypeFromSchema } from '../TSchemaParser';
+import { Infer } from '../TSchemaParser';
 import { EnumField } from '../fields/EnumField';
 import { parseSchemaField, parseSingleKeyObjectDefinition } from '../parseSchemaDefinition';
 
@@ -89,7 +89,7 @@ describe('parseSchemaField', () => {
       def: ['a', 'b', 'c'],
     });
 
-    type FinalType = TypeFromSchema<{ sut: typeof sut }>;
+    type FinalType = Infer<{ sut: typeof sut }>;
     assert<IsExact<FinalType, { sut: 'a' | 'b' | 'c' }>>(true);
   });
 
@@ -119,9 +119,9 @@ describe('parseSchemaField', () => {
       def: ['a', 'b'],
     });
 
-    type EnumFinalType = TypeFromSchema<{ sut: typeof single }>;
-    type EnumListFinalType = TypeFromSchema<{ sut: typeof list }>;
-    type EnumListOptionalFinalType = TypeFromSchema<{ sut: typeof listOptional }>;
+    type EnumFinalType = Infer<{ sut: typeof single }>;
+    type EnumListFinalType = Infer<{ sut: typeof list }>;
+    type EnumListOptionalFinalType = Infer<{ sut: typeof listOptional }>;
 
     assert<IsExact<EnumFinalType, { sut: 'a' | 'b' }>>(true);
     assert<IsExact<EnumListFinalType, { sut: ('a' | 'b')[] }>>(true);

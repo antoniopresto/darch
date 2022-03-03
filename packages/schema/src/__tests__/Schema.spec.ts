@@ -1,7 +1,7 @@
 import { assert, IsExact } from 'conditional-type-checks';
 
 import { createSchema, Schema } from '../Schema';
-import { TypeFromSchema } from '../TSchemaParser';
+import { Infer } from '../TSchemaParser';
 
 const userSchema = new Schema({
   name: 'string',
@@ -217,9 +217,9 @@ describe('Schema', () => {
       },
     });
 
-    type T1 = TypeFromSchema<typeof schema1>;
-    type NoName = TypeFromSchema<typeof noName>;
-    type NoEmail = TypeFromSchema<typeof noEmail>;
+    type T1 = Infer<typeof schema1>;
+    type NoName = Infer<typeof noName>;
+    type NoEmail = Infer<typeof noEmail>;
 
     assert<IsExact<NoName, Omit<T1, 'name'>>>(true);
     assert<IsExact<NoEmail, Omit<T1, 'email'>>>(true);
@@ -266,8 +266,8 @@ describe('Schema', () => {
       },
     });
 
-    type T1 = TypeFromSchema<typeof schema1>;
-    type WithEmail = TypeFromSchema<typeof withEmail>;
+    type T1 = Infer<typeof schema1>;
+    type WithEmail = Infer<typeof withEmail>;
 
     assert<IsExact<WithEmail, T1 & { email: string }>>(true);
   });

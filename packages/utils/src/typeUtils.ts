@@ -24,6 +24,8 @@ export type IsNullable<T> = Extract<T, null | undefined> extends never
   ? false
   : true;
 
+export type IsOptional<T> = Extract<T, undefined> extends never ? false : true;
+
 export type IsUnknown<T> = IsNever<T> extends false
   ? T extends unknown
     ? unknown extends T
@@ -35,11 +37,11 @@ export type IsUnknown<T> = IsNever<T> extends false
   : false;
 
 export type OnlyKnown<T> = IsAny<T> extends true
-  ? undefined
+  ? never
   : IsNever<T> extends true
-  ? undefined
+  ? never
   : IsUnknown<T> extends true
-  ? undefined
+  ? never
   : T;
 
 export type MaybePromise<T> = T | Promise<T>;
@@ -74,33 +76,13 @@ export type ForceString<T> = T extends string ? T : never;
 export type NotString<T> = string extends T ? never : T;
 
 export type NullableToPartial<T> = T extends { [K: string]: any }
-  ? {
-      [K in keyof ({
-        [K in NullableKeys<T>]?: T[K];
+  ? Simplify<
+      {
+        [K in keyof T as IsOptional<T[K]> extends true ? never : K]-?: T[K];
       } & {
-        [K in RequiredKeys<T>]-?: T[K];
-      })]: ({
-        [K in NullableKeys<T>]?: T[K];
-      } & {
-        [K in RequiredKeys<T>]-?: T[K];
-      })[K];
-    }
+        [K in keyof T as IsOptional<T[K]> extends true ? K : never]?: T[K];
+      }
+    >
   : never;
 
-export type NullableKeys<T> = Extract<NullableByKind<T, 'nullable'>, string>;
-
-export type RequiredKeys<T> = Extract<NullableByKind<T, 'required'>, string>;
-
-export type NullableByKind<T, Kind extends 'nullable' | 'required'> = {
-  [K in keyof T]?: IsNullable<T[K]> extends (
-    Kind extends 'nullable' ? true : false
-  )
-    ? K
-    : never;
-}[keyof T] extends infer Temp
-  ? Temp extends undefined
-    ? never
-    : Temp
-  : never;
-
-export type Simplify<T> = {[KeyType in keyof T]: T[KeyType]};
+export type Simplify<T> = { [KeyType in keyof T]: T[KeyType] };

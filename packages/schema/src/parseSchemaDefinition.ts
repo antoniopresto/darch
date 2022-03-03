@@ -7,10 +7,17 @@ import { simpleObjectClone } from '@darch/utils/dist/simpleObjectClone';
 import { isFieldType } from './FieldType';
 import { isSchema, Schema } from './Schema';
 import { FieldDefinitionConfig } from './TSchemaConfig';
-import { AnyParsedFieldDefinition, ParsedFieldDefinition, ParsedSchemaDefinition } from './TSchemaParser';
+import { ParsedFieldDefinition, ParsedSchemaDefinition } from './TSchemaParser';
 import { fieldInstanceFromDef } from './fieldInstanceFromDef';
-import { AnyFieldTypeInstance, fieldTypeConstructors } from './fields/fieldTypes';
-import { isStringFieldDefinition, parseStringDefinition } from './parseStringDefinition';
+import {
+  AnyFieldTypeInstance,
+  fieldTypeConstructors,
+} from './fields/fieldTypes';
+import {
+  isStringFieldDefinition,
+  parseStringDefinition,
+} from './parseStringDefinition';
+import { FinalFieldDefinition } from './fields/_parseFields';
 
 export function parseSchemaField<T extends FieldDefinitionConfig>(
   fieldName: string,
@@ -49,7 +56,9 @@ export function parseSchemaField<T extends FieldDefinitionConfig>(
   });
 }
 
-export function parseFieldDefinitionConfig(definition: FieldDefinitionConfig): ParsedFieldDefinition<any> {
+export function parseFieldDefinitionConfig(
+  definition: FieldDefinitionConfig
+): ParsedFieldDefinition<any> {
   if (isSchemaLiteral(definition)) {
     const { schema, description, optional = false, list = false } = definition;
 
@@ -64,7 +73,7 @@ export function parseFieldDefinitionConfig(definition: FieldDefinitionConfig): P
     };
   }
 
-  if (isParsedSchemaField(definition)) {
+  if (isFinalFieldDefinition(definition)) {
     if (definition.type === 'schema') {
       if (typeof definition.def !== 'object' || !definition.def) {
         throw new RuntimeError(`Missing def for schema field.`, { definition });
@@ -77,7 +86,9 @@ export function parseFieldDefinitionConfig(definition: FieldDefinitionConfig): P
     }
 
     if (definition.type === 'union') {
-      definition.def = definition.def.map((el) => parseFieldDefinitionConfig(el));
+      definition.def = definition.def.map((el) =>
+        parseFieldDefinitionConfig(el)
+      );
     }
 
     return {
@@ -152,7 +163,10 @@ export function parseSchemaDefinition<T>(input: T): ParsedSchemaDefinition<T> {
 
   getKeys(input).forEach(function (fieldName) {
     try {
-      (result as any)[fieldName] = parseSchemaField(fieldName, (input as any)[fieldName]);
+      (result as any)[fieldName] = parseSchemaField(
+        fieldName,
+        (input as any)[fieldName]
+      );
     } catch (err) {
       throw new RuntimeError(`failed to process schema`, {
         err,
@@ -165,7 +179,7 @@ export function parseSchemaDefinition<T>(input: T): ParsedSchemaDefinition<T> {
   return result;
 }
 
-function isParsedSchemaField(input: any): input is AnyParsedFieldDefinition {
+function isFinalFieldDefinition(input: any): input is FinalFieldDefinition {
   return typeof input?.type === 'string';
 }
 
@@ -183,10 +197,18 @@ export function isSchemaAsTypeDefinition(
   return input && typeof input === 'object' && isSchema(input.type);
 }
 
-function isSchemaLiteral(
-  input: any
-): input is { schema: any; optional?: boolean; list?: boolean; description?: string } {
-  return Boolean(!input?.type && input?.schema && typeof input.schema === 'object' && !isFieldType(input));
+function isSchemaLiteral(input: any): input is {
+  schema: any;
+  optional?: boolean;
+  list?: boolean;
+  description?: string;
+} {
+  return Boolean(
+    !input?.type &&
+      input?.schema &&
+      typeof input.schema === 'object' &&
+      !isFieldType(input)
+  );
 }
 
 const validTypes = {
@@ -214,7 +236,10 @@ export function parseSingleKeyObjectDefinition(input: any) {
       if (k !== 'schema' && def && typeof def === 'object') {
         for (let defKey in def) {
           if (defKey === 'def' || validTypes[defKey]) {
-            console.warn(`using field def as type definition?\n`, { type: k, def });
+            console.warn(`using field def as type definition?\n`, {
+              type: k,
+              def,
+            });
             return false;
           }
         }

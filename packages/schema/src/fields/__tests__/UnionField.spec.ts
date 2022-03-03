@@ -2,7 +2,7 @@ import { RuntimeError } from '@darch/utils/dist/RuntimeError';
 import { assert, IsExact } from 'conditional-type-checks';
 
 import { createSchema } from '../../Schema';
-import { Infer, ParsedFieldDefinition, TypeFromSchema } from '../../TSchemaParser';
+import { Infer, ParsedFieldDefinition, Infer } from '../../TSchemaParser';
 import { UnionField } from '../UnionField';
 
 describe('Union', () => {
@@ -59,7 +59,7 @@ describe('Union', () => {
 
     expect(sut.parse({ foo: { name: 'a' } })).toEqual({ foo: { name: 'a' } });
 
-    type T = TypeFromSchema<typeof sut>;
+    type T = Infer<typeof sut>;
 
     assert<
       IsExact<
@@ -100,7 +100,7 @@ describe('Union', () => {
     //     '}'
     // ); // TODO
 
-    type T = TypeFromSchema<typeof def>;
+    type T = Infer<typeof def>;
 
     assert<
       IsExact<

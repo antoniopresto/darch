@@ -5,14 +5,14 @@
 import { FieldType, FieldTypeParser } from '../FieldType';
 import type { Schema } from '../Schema';
 import type { SchemaDefinitionInput } from '../TSchemaConfig';
-import { TypeFromSchema } from '../TSchemaParser';
+import { Infer } from '../TSchemaParser';
 
 export class SubSchemaField<DefinitionInput extends SchemaDefinitionInput> extends FieldType<
-  TypeFromSchema<DefinitionInput>,
+  Infer<DefinitionInput>,
   'schema',
   DefinitionInput
 > {
-  parse: FieldTypeParser<TypeFromSchema<DefinitionInput>>;
+  parse: FieldTypeParser<Infer<DefinitionInput>>;
 
   constructor(def: DefinitionInput) {
     super('schema', def);

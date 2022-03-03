@@ -1,9 +1,8 @@
 import { assert, IsExact } from 'conditional-type-checks';
 
 import { createSchema, Schema } from '../Schema';
-import { ParsedFieldDefinition, TypeFromSchema } from '../TSchemaParser';
+import { ParsedFieldDefinition, Infer } from '../TSchemaParser';
 import { EnumField } from '../fields/EnumField';
-import { Infer } from '../index';
 import { parseSchemaDefinition } from '../parseSchemaDefinition';
 import { ParseStringDefinition } from '../parseStringDefinition';
 
@@ -37,15 +36,11 @@ describe('typings', () => {
       nameListOptional: '[string]?',
       optional: 'string?',
       age: 'int',
-      gender: {
-        type: 'enum',
-        def: ['male', 'female', 'other'],
-        optional: true,
-      },
-      category: ['general', 'closed'],
-      categoryRO: ['general', 'closed'] as const,
-      '12Enum': ['1', '2'],
-      enumTypeField: EnumField.create(['x', 'xx']),
+      gender: { enum: ['male', 'female', 'other'] },
+      category: { enum: ['general', 'closed'] },
+      categoryRO: { enum: ['general', 'closed'] } as const,
+      '12Enum': { enum: ['1', '2'] },
+      // enumTypeField: EnumField.create(['x', 'xx']),
       otherSchema,
       otherSchemaList: {
         type: otherSchema,
@@ -53,7 +48,7 @@ describe('typings', () => {
       },
     } as const;
 
-    type T = TypeFromSchema<typeof definition>;
+    type T = Infer<typeof definition>;
 
     type Expected = {
       name: string;
@@ -215,7 +210,7 @@ describe('typings', () => {
       count: number;
     };
 
-    type T3 = TypeFromSchema<typeof schema3>;
+    type T3 = Infer<typeof schema3>;
 
     assert<IsExact<T3, S3>>(true);
   });

@@ -7,7 +7,7 @@ import { simpleObjectClone } from '@darch/utils/dist/simpleObjectClone';
 import { ForceString } from '@darch/utils/dist/typeUtils';
 
 import { SchemaDefinitionInput } from './TSchemaConfig';
-import { AnyParsedSchemaDefinition, ParsedSchemaDefinition, TypeFromSchema } from './TSchemaParser';
+import { AnyParsedSchemaDefinition, ParsedSchemaDefinition, Infer } from './TSchemaParser';
 import { parseValidationError, ValidationCustomMessage } from './applyValidator';
 import { parseSchemaFields } from './getSchemaErrors';
 import { parseSchemaDefinition } from './parseSchemaDefinition';
@@ -15,7 +15,7 @@ import { parseSchemaDefinition } from './parseSchemaDefinition';
 export * from './schemaInferenceUtils';
 
 export class Schema<DefinitionInput extends SchemaDefinitionInput> {
-  _infer!: TypeFromSchema<DefinitionInput>;
+  _infer!: Infer<DefinitionInput>;
 
   private readonly __definition: any;
 
@@ -32,7 +32,7 @@ export class Schema<DefinitionInput extends SchemaDefinitionInput> {
   parse(
     input: any,
     options?: { partial?: boolean; customMessage?: ValidationCustomMessage }
-  ): TypeFromSchema<DefinitionInput> {
+  ): Infer<DefinitionInput> {
     const { customMessage } = options || {};
     const { errors, parsed } = this.safeParse(input, options?.partial);
 
@@ -46,7 +46,7 @@ export class Schema<DefinitionInput extends SchemaDefinitionInput> {
     return parsed as any;
   }
 
-  validate(input: any): input is TypeFromSchema<DefinitionInput> {
+  validate(input: any): input is Infer<DefinitionInput> {
     try {
       this.parse(input);
       return true;

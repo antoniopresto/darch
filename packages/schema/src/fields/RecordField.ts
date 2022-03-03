@@ -3,7 +3,7 @@ import { inspectObject } from '@darch/utils/dist/inspectObject';
 
 import { FieldType, FieldTypeParser } from '../FieldType';
 import type { FieldDefinitionConfig } from '../TSchemaConfig';
-import type { TypeFromSchema } from '../TSchemaParser';
+import type { Infer } from '../TSchemaParser';
 
 import type { AnyFieldTypeInstance } from './fieldTypes';
 
@@ -16,8 +16,8 @@ export type RecordFieldDef = {
 };
 
 export type InferRecordFieldType<Def> = Def extends { keyType: 'int' | 'float' }
-  ? { [K: number]: TypeFromSchema<Def extends { type: FieldDefinitionConfig } ? Def['type'] : 'any'> }
-  : { [K: string]: TypeFromSchema<Def extends { type: FieldDefinitionConfig } ? Def['type'] : 'any'> };
+  ? { [K: number]: Infer<Def extends { type: FieldDefinitionConfig } ? Def['type'] : 'any'> }
+  : { [K: string]: Infer<Def extends { type: FieldDefinitionConfig } ? Def['type'] : 'any'> };
 
 export class RecordField<Def extends RecordFieldDef> extends FieldType<
   InferRecordFieldType<Def>,

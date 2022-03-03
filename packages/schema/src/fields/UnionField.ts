@@ -4,17 +4,17 @@ import { uniq } from '@darch/utils/dist/uniq';
 
 import { FieldType, FieldTypeParser } from '../FieldType';
 import type { FieldDefinitionConfig } from '../TSchemaConfig';
-import type { TypeFromSchema } from '../TSchemaParser';
+import type { Infer } from '../TSchemaParser';
 
 import type { AnyFieldTypeInstance } from './fieldTypes';
 
 export class UnionField<U extends FieldDefinitionConfig, T extends Readonly<[U, ...U[]]>> extends FieldType<
-  TypeFromSchema<T[number]>,
+  Infer<T[number]>,
   'union',
   T
 > {
   //
-  parse: FieldTypeParser<TypeFromSchema<T[number]>>;
+  parse: FieldTypeParser<Infer<T[number]>>;
 
   constructor(def: T) {
     super('union', def);
@@ -68,7 +68,7 @@ export class UnionField<U extends FieldDefinitionConfig, T extends Readonly<[U, 
 
   static create = <U extends FieldDefinitionConfig, T extends Readonly<[U, ...U[]]>>(
     def: T
-  ): FieldType<TypeFromSchema<T[number]>, 'union', T> => {
+  ): FieldType<Infer<T[number]>, 'union', T> => {
     return new UnionField(def);
   };
 
