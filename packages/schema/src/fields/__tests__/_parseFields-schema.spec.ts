@@ -241,12 +241,8 @@ type TStringOptList = InferField<{ schema: { name: '[string]?' } }>;
 assert<IsExact<TStringOptList, { name?: string[] | undefined }>>(true);
 
 //   ulid:
-assert<
-  IsExact<
-    InferField<{ schema: { name: '[ulid]?' } }>,
-    { name?: string[] | undefined }
-  >
->(true);
+type TUlid = InferField<{ schema: { name: '[ulid]?' } }>;
+assert<IsExact<TUlid, { name?: string[] | undefined }>>(true);
 
 //   undefined:
 assert<

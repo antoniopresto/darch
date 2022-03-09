@@ -1,12 +1,5 @@
-import { InferField } from './_parseFields';
-import { NullableToPartial } from '@darch/utils/dist/typeUtils';
+import { SchemaFieldInput } from './_parseFields';
 import { RecordFieldDef } from './RecordField';
-
-export interface CommonFieldConfig {
-  list?: boolean;
-  optional?: boolean;
-  description?: string;
-}
 
 export type TCursor = {
   pk: string;
@@ -17,62 +10,100 @@ export type TCursor = {
   fields?: string[];
 };
 
-export type FieldTypesRecord<Def = undefined> = {
-  any: [undefined, any];
+export type FieldDefinitions = {
+  any: undefined;
 
-  boolean: [undefined, boolean];
+  boolean: undefined;
 
-  cursor: [undefined, TCursor];
+  cursor: undefined;
 
-  date: [
-    (
-      | {
-          min?: Date;
-          max?: Date;
-        }
-      | undefined
-    ),
-    Date
-  ];
+  date:
+    | {
+        min?: Date;
+        max?: Date;
+      }
+    | undefined;
 
-  email: [
-    (
-      | {
-          regex?: [string] | [string, string];
-        }
-      | undefined
-    ),
-    string
-  ];
+  email:
+    | {
+        regex?: [string] | [string, string];
+      }
+    | undefined;
 
-  float: [
-    (
-      | {
-          min?: number;
-          max?: number;
-        }
-      | undefined
-    ),
-    number
-  ];
+  float:
+    | {
+        min?: number;
+        max?: number;
+      }
+    | undefined;
 
-  int: [
-    (
-      | {
-          min?: number;
-          max?: number;
-        }
-      | undefined
-    ),
-    number
-  ];
+  int:
+    | {
+        min?: number;
+        max?: number;
+      }
+    | undefined;
 
-  null: [undefined, null];
+  null: undefined;
 
-  record: [
-    RecordFieldDef | undefined,
+  record: RecordFieldDef | undefined;
 
-    [Def] extends [undefined]
+  string:
+    | {
+        min?: number;
+        max?: number;
+        regex?: [string] | [string, string];
+      }
+    | undefined;
+
+  ulid:
+    | {
+        autoCreate?: boolean;
+      }
+    | undefined;
+
+  undefined: undefined;
+
+  unknown: undefined;
+
+  schema: { [K: string]: SchemaFieldInput };
+
+  union: SchemaFieldInput[];
+
+  enum: Array<string> | Readonly<Array<string>>;
+};
+
+export type InferFieldType<Type, Def = undefined> =
+  //
+  Type extends 'any'
+    ? any
+    : Type extends 'boolean'
+    ? boolean
+    : Type extends 'cursor'
+    ? TCursor
+    : Type extends 'null'
+    ? null
+    : Type extends 'undefined'
+    ? undefined
+    : Type extends 'unknown'
+    ? unknown
+    : Type extends 'string'
+    ? string
+    : Type extends 'date'
+    ? Date
+    : Type extends 'email'
+    ? string
+    : Type extends 'float'
+    ? number
+    : Type extends 'int'
+    ? number
+    : Type extends 'ulid'
+    ? string
+    : //
+
+    // === parsing record type ===
+    Type extends 'record'
+    ? [Def] extends [undefined]
       ? { [K: string]: any }
       : Def extends { keyType: 'int' | 'float' }
       ? {
@@ -85,65 +116,13 @@ export type FieldTypesRecord<Def = undefined> = {
             ? Infer
             : any;
         }
-  ];
+    : //
 
-  string: [
-    (
-      | {
-          min?: number;
-          max?: number;
-          regex?: [string] | [string, string];
-        }
-      | undefined
-    ),
-    string
-  ];
-
-  ulid: [
-    (
-      | {
-          autoCreate?: boolean;
-        }
-      | undefined
-    ),
-    string
-  ];
-
-  undefined: [undefined, undefined];
-
-  unknown: [undefined, unknown];
-
-  schema: [
-    Def,
-
-    [Def] extends [undefined]
-      ? never
-      : [Def] extends [{ [K: string]: any }]
-      ? NullableToPartial<{
-          [K in keyof Def]: InferField<Def[K]>;
-        }>
+    // == parsing enum
+    Type extends 'enum'
+    ? Def extends Array<infer Val> | Readonly<Array<infer Val>>
+      ? Val
       : never
-  ];
+    : never;
 
-  union: [
-    { type: FieldTypeName; __infer: any }[],
-
-    [Def] extends [undefined]
-      ? never
-      : Def extends { type: FieldTypeName; __infer: any }[]
-      ? Def[number]['__infer']
-      : never
-  ];
-
-  enum: [
-    Array<string> | Readonly<Array<string>>,
-    //
-    [Def] extends [undefined]
-      ? never
-      : Def extends Array<string> | Readonly<Array<string>>
-      ? Def[number]
-      : never
-  ];
-};
-
-export type FieldTypeName = Extract<keyof FieldTypesRecord, string>;
+export type FieldTypeName = Extract<keyof FieldDefinitions, string>;

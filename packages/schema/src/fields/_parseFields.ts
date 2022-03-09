@@ -1,5 +1,12 @@
-import { FieldTypeName, FieldTypesRecord } from './_fieldDefinitions';
-import { IsNullable, OnlyKnown, Simplify } from '@darch/utils/dist/typeUtils';
+import {
+  FieldTypeName,
+  FieldDefinitions,
+  InferFieldType,
+} from './_fieldDefinitions';
+import {
+  NullableToPartial,
+  UnionToIntersection,
+} from '@darch/utils/dist/typeUtils';
 
 export type SchemaFieldInput =
   | FinalFieldDefinition
@@ -7,7 +14,7 @@ export type SchemaFieldInput =
   | FlattenFieldDefinition
   | SchemaFieldInput[];
 
-export type InferField<Input> = ToFinalField<Input>['__infer'];
+export type InferField<Input> = GetI<ToFinalField<Input>>;
 
 export type ParseFields<Input> = {
   -readonly [K in keyof Input]: ToFinalField<Input[K]>;
@@ -16,7 +23,7 @@ export type ParseFields<Input> = {
 export type FinalFieldDefinition = {
   [K in FieldTypeName]: {
     type: K;
-    def: FieldTypesRecord[K][0];
+    def: FieldDefinitions[K];
     list?: boolean;
     optional?: boolean;
     description?: string;
@@ -26,7 +33,7 @@ export type FinalFieldDefinition = {
 
 export type FlattenFieldDefinition = {
   [type in FieldTypeName]: {
-    [K in type]: FieldTypesRecord[K] extends { def: infer Def }
+    [K in type]: FieldDefinitions[K] extends { def: infer Def }
       ? Def | Readonly<Def>
       : never;
   };
@@ -38,40 +45,42 @@ export type FieldAsString =
   | `[${FieldTypeName}]`
   | `[${FieldTypeName}]?`;
 
-export type ToFinalField<Base> = _handleOptional<
-  _handleList<
-    _injectInfer<
-      //
-      // ==== start handling fieldType instance ====
-      Base extends { __isFieldType: true; parsed: infer Parsed }
-        ? Parsed
-        : // === end handling fieldType instance
+export type ToFinalField<Base> =
+  //
+  _handleOptional<
+    _handleList<
+      _injectInfer<
+        //
+        // ==== start handling fieldType instance ====
+        Base extends { __isFieldType: true; parsed: infer Parsed }
+          ? Parsed
+          : // === end handling fieldType instance
 
-        // === start handling union type ===
-        Base extends Array<infer Item> | Readonly<Array<infer Item>>
-        ? Item extends SchemaFieldInput
+          // === start handling union type ===
+          Base extends Array<infer Item> | Readonly<Array<infer Item>>
           ? {
               type: 'union';
-              def: ToFinalField<Item>[];
+              def: Array<Base[number]>;
               list: Item extends { list: true } ? true : undefined;
               optional: Item extends { optional: true } ? true : undefined;
-              description: string;
+              description: string | unknown;
             }
-          : never
-        : // === end handling union type
+          : // === end handling union type
 
-        // ==== start handling FieldAsString ====
-        Base extends FieldAsString
-        ? ParseStringDefinition<Base>
-        : // ==== end handling FieldAsString ====
+          // ==== start handling FieldAsString ====
+          Base extends FieldAsString
+          ? ParseStringDefinition<Base>
+          : // ==== end handling FieldAsString ====
 
-          // ==== start handling FieldAsTypeKey ====
-          {
-            [K in keyof ParseFieldAsKey<Base>]: ParseFieldAsKey<Base>[K];
-          }
+            // ==== start handling FieldAsTypeKey ====
+            {
+              [K in keyof ParseFieldAsKey<Base>]: ParseFieldAsKey<Base>[K];
+            }
+      >
     >
-  >
->;
+  >;
+
+type GetI<T> = T extends { __infer: infer I } ? I : never;
 
 // inject  the `__infer` property
 type _injectInfer<T> = T extends { __infer: {} }
@@ -80,25 +89,39 @@ type _injectInfer<T> = T extends { __infer: {} }
       type: FieldTypeName;
       def: infer Def;
     }
-  ? T & {
-      __infer: IsNullable<FieldTypesRecord<any>[T['type']][0]> extends true
-        ? FieldTypesRecord<Def>[T['type']][1]
-        : // don't try to infer fields where definition is
-        // required (union, schema..) when def is invalid
-        [OnlyKnown<Def>] extends [never]
-        ? never
-        : FieldTypesRecord<Def>[T['type']][1];
-    }
-  : never;
+  ? UnionToIntersection<
+      | T
+      | {
+          __infer: //
+          //
+          // === recursive schema case ===
+          T['type'] extends 'schema'
+            ? Def extends { [K: string]: any }
+              ? NullableToPartial<{
+                  [K in keyof Def]: GetI<ToFinalField<Def[K]>>;
+                }>
+              : never
+            : //
 
-type Molejo<A, B> = Simplify<Omit<A, keyof B> & B>;
+            // === recursive union case ===
+            T['type'] extends 'union'
+            ? Def extends Array<infer Item> | Readonly<Array<infer Item>>
+              ? GetI<ToFinalField<Item>>
+              : never
+            : //
+
+              // === simple field case
+              InferFieldType<T['type'], Def>;
+        }
+    >
+  : never;
 
 type _handleList<T> = T extends {
   __infer: infer Infer;
   list?: infer List;
 }
   ? [List] extends [true]
-    ? Molejo<T, { __infer: Infer[] }>
+    ? Omit<T, '__infer'> & { __infer: Infer[] }
     : T
   : never;
 
@@ -107,7 +130,7 @@ type _handleOptional<T> = T extends {
   optional?: infer Optional;
 }
   ? [Optional] extends [true]
-    ? Molejo<T, { __infer: Infer | undefined }>
+    ? Omit<T, '__infer'> & { __infer: Infer | undefined }
     : T
   : never;
 

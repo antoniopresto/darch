@@ -99,7 +99,7 @@ export class Schema<DefinitionInput extends SchemaDefinitionInput> {
 
     invariantType({ commentsConfig }, 'object', { commentsConfig });
 
-    const definition: AnyParsedSchemaDefinition = this.definition;
+    const definition: AnyParsedSchemaDefinition = this.definition as any;
 
     Object.entries(commentsConfig).forEach(([name, comment]) => {
       invariantType({ [name]: definition[name] }, 'object', `"${name}" is not in schema definition.`);

@@ -75,14 +75,22 @@ export type Writeable<T> = {
 export type ForceString<T> = T extends string ? T : never;
 export type NotString<T> = string extends T ? never : T;
 
-export type NullableToPartial<T> = T extends { [K: string]: any }
-  ? Simplify<
-      {
-        [K in keyof T as IsOptional<T[K]> extends true ? never : K]-?: T[K];
-      } & {
-        [K in keyof T as IsOptional<T[K]> extends true ? K : never]?: T[K];
-      }
-    >
+export type NullableToPartial<T> = UnionToIntersection<
+  | {
+      [K in keyof T as IsOptional<T[K]> extends true ? never : K]-?: T[K];
+    }
+  | {
+      [K in keyof T as IsOptional<T[K]> extends true ? K : never]?: T[K];
+    }
+>;
+
+// https://fettblog.eu/typescript-union-to-intersection/
+export type UnionToIntersection<T> = (
+  T extends any ? (x: T) => any : never
+) extends (x: infer R) => any
+  ? {
+      [K in keyof R]: R[K];
+    }
   : never;
 
 export type Simplify<T> = { [KeyType in keyof T]: T[KeyType] };
