@@ -7,53 +7,60 @@ test('examples', async () => {
   const addressSchema = createSchema({
     street: 'string',
     number: 'int?',
+    union: ['string', '[int]?'],
   });
 
-  const schemaDefinition = {
-    name: 'string', // any string
-    email: 'email?', // email type - will validate against email regex
-    age: 'int?', // optional integer
-    notes: '[int]?',
+  const userSchema = createSchema(
+    {
+      name: 'string', // any string
+      email: 'email?', // email type - will validate against email regex
+      age: 'int?', // optional integer
+      notes: '[int]?',
 
-    // declaring a union field - will infer as `string | undefined | number[]`
-    unionField: [['string?', '[int]?']],
+      // declaring a union field - will infer as `string | undefined | number[]`
+      unionField: ['string?', '[int]?'],
 
-    // represents an enum
-    letter: ['a', 'b', 'c'],
+      // represents an enum
+      letter: { enum: ['a', 'b', 'c'] },
 
-    // more detailed way to define enums
-    letterOptionalList: {
-      enum: ['x', 'y', 'z'],
-      optional: true,
-      list: true,
-    },
-
-    // using a previous schema as field type
-    optionalAddress: {
-      type: addressSchema,
-      optional: true,
-    },
-
-    // another way to define schema fields
-    deliveryAddress: {
-      schema: {
-        street: 'string',
-        number: 'int?',
+      // more detailed way to define enums
+      letterOptionalList: {
+        enum: ['x', 'y', 'z'],
+        optional: true,
+        list: true,
       },
-    },
-  } as const; // "as const" is needed to TS to infer types correctly
 
-  const userSchema = createSchema(schemaDefinition);
+      // using a previous schema as field type
+      optionalAddress: {
+        schema: addressSchema,
+        optional: true,
+      },
+
+      // another way to define schema fields
+      deliveryAddress: {
+        schema: {
+          street: 'string',
+          number: 'int?',
+        },
+      },
+    } as const // "as const" is needed to TS to infer types correctly
+  );
 
   expect(() => userSchema.parse({ name: 'Antonio', letter: 'x' })).toThrow(
     `field "letter": accepted: 'a' or 'b' or 'c', found x.`
   );
 
-  expect(() => userSchema.parse({ name: 'antonio', letter: 'a', deliveryAddress: {} })).toThrow(
+  expect(() =>
+    userSchema.parse({ name: 'antonio', letter: 'a', deliveryAddress: {} })
+  ).toThrow(
     'field "deliveryAddress": ➤ field "street": expected type string, found undefined.'
   );
 
-  const parsed = userSchema.parse({ name: 'antonio', letter: 'a', deliveryAddress: { street: 'alameda' } });
+  const parsed = userSchema.parse({
+    name: 'antonio',
+    letter: 'a',
+    deliveryAddress: { street: 'alameda' },
+  });
 
   type InferType = typeof parsed;
 

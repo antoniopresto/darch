@@ -126,7 +126,7 @@ export class Schema<DefinitionInput extends SchemaDefinitionInput> {
     return this.clone(definition) as any;
   }
 
-  get __isTaskforceSchema() {
+  get __isDarchSchema(): true {
     return true;
   }
 

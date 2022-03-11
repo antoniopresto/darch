@@ -36,7 +36,37 @@ assert<
 type SampleSchema = Schema<{
   street: 'string';
   number: 'int?';
-}>
+  days: { enum: ['0', '1']; list: true; optional: true };
+  add: { schema: { name: 'string' } };
+  addListOptional: {
+    schema: {
+      name: 'string';
+      uni: [
+        { enum: ['a', 'b'] }, //
+        'int'
+      ];
+    };
+    list: true;
+    optional: true;
+  };
+}>;
+
+type TSampleSchemaInfer = InferField<SampleSchema>;
+
+type TSampleSchema = {
+  street: string;
+  number?: number | undefined;
+  days?: ('0' | '1')[] | undefined;
+  add: { name: string };
+  addListOptional?:
+    | {
+        name: string;
+        uni: 'a' | 'b' | number;
+      }[]
+    | undefined;
+};
+
+assert<IsExact<TSampleSchema, TSampleSchemaInfer>>(true);
 
 type AddressSchema = InferField<{
   schema: {
@@ -60,14 +90,12 @@ type AddressSchema = InferField<{
 
     // using a previous schema as field type
     optionalAddress: {
-      type: SampleSchema;
+      schema: SampleSchema;
       optional: true;
     };
 
     // another way to define schema fields
-    deliveryAddress: {
-      schema: SampleSchema;
-    };
+    deliveryAddress: SampleSchema;
   };
 }>;
 
@@ -82,17 +110,8 @@ assert<
       unionField?: string | number[] | undefined;
       letter: 'a' | 'b' | 'c';
       letterOptionalList?: ('x' | 'y' | 'z')[] | undefined;
-      optionalAddress?:
-        | {
-            street: string;
-            number?: number | undefined;
-          }
-        | undefined;
-
-      deliveryAddress: {
-        street: string;
-        number?: number | undefined;
-      };
+      optionalAddress?: TSampleSchema | undefined;
+      deliveryAddress: TSampleSchema;
     }
   >
 >(true);

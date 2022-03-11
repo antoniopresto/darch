@@ -5,5 +5,5 @@ export function isSchemaValidationError(input: any): input is Error & { fieldErr
 }
 
 export function isSchema(input: any): input is Schema<any> {
-  return input?.__isTaskforceSchema === true;
+  return input?.__isDarchSchema === true;
 }

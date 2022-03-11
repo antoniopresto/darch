@@ -66,9 +66,11 @@ export type FieldDefinitions = {
 
   unknown: undefined;
 
-  schema: { [K: string]: SchemaFieldInput };
+  schema:
+    | { [K: string]: SchemaFieldInput }
+    | Readonly<{ [K: string]: SchemaFieldInput }>;
 
-  union: SchemaFieldInput[];
+  union: SchemaFieldInput[] | Readonly<SchemaFieldInput[]>;
 
   enum: Array<string> | Readonly<Array<string>>;
 };
