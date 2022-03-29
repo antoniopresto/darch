@@ -13,8 +13,8 @@ const userSchema = new Schema({
     optional: true,
   },
 
-  category: ['general', 'closed'],
-  '12Enum': ['1', '2'],
+  category: { enum: ['general', 'closed'] },
+  '12Enum': { enum: ['1', '2'] },
 
   enumArray: {
     type: 'enum',
@@ -94,8 +94,8 @@ describe('Schema', () => {
 
   it('should validate schema inside schema', () => {
     const subSchema = new Schema({
-      mySubField: ['foo'],
-    });
+      mySubField: { enum: ['foo'] },
+    } as const);
 
     const schema = new Schema({
       name: 'string',
@@ -114,9 +114,13 @@ describe('Schema', () => {
         name: 'a',
         sub: { mySubField: 'INVALID' },
       })
-    ).toThrow('➤ field "sub": ➤ field "mySubField": accepted: \'foo\', found INVALID.');
+    ).toThrow(
+      '➤ field "sub": ➤ field "mySubField": accepted: \'foo\', found INVALID.'
+    );
 
-    expect(() => schema.parse({ name: 'a', sub: 1 })).toThrow('➤ field "sub": expected object, found number.');
+    expect(() => schema.parse({ name: 'a', sub: 1 })).toThrow(
+      '➤ field "sub": expected object, found number.'
+    );
 
     expect(() => schema.parse({ name: 'a', sub: {} })).toThrow(
       '➤ field "sub": ➤ field "mySubField": expected type enum, found undefined.'
@@ -127,13 +131,13 @@ describe('Schema', () => {
     const rolesSchema = new Schema({
       name: 'string',
       permissions: '[string]',
-      status: ['open', 'closed'],
+      status: { enum: ['open', 'closed'] },
     } as const);
 
     const mySchema = new Schema({
       userId: 'string',
       roles: {
-        type: rolesSchema,
+        schema: rolesSchema,
         list: true,
       },
     });
@@ -141,11 +145,15 @@ describe('Schema', () => {
     expect(mySchema.definition.roles.type).toBe('schema');
     expect(mySchema.definition.roles.def).toEqual(rolesSchema.definition);
 
-    expect(() => mySchema.parse({ userId: '123' })).toThrow('➤ field "roles": expected type schema, found undefined.');
+    expect(() => mySchema.parse({ userId: '123' })).toThrow(
+      '➤ field "roles": expected type schema, found undefined.'
+    );
 
     expect(() => mySchema.parse({ userId: '123', roles: [] })).not.toThrow();
 
-    expect(() => mySchema.parse({ userId: '123', roles: [1] })).toThrow('• roles[0] expected object, found number');
+    expect(() => mySchema.parse({ userId: '123', roles: [1] })).toThrow(
+      '• roles[0] expected object, found number'
+    );
   });
 
   test('describe', () => {
@@ -297,9 +305,13 @@ describe('Schema', () => {
     expect(() => schema1.identify('')).toThrow();
 
     expect(schema1.identify('abc')).toHaveProperty('id', 'abc');
-    expect(() => schema1.identify('abc')).toThrow('Trying to replace existing id "abc"');
+    expect(() => schema1.identify('abc')).toThrow(
+      'Trying to replace existing id "abc"'
+    );
 
     expect(Schema.register.get('abc')).toBe(schema1);
-    expect(() => Schema.register.get('yyy')).toThrow('There is no item with key "yyy"');
+    expect(() => Schema.register.get('yyy')).toThrow(
+      'There is no item with key "yyy"'
+    );
   });
 });

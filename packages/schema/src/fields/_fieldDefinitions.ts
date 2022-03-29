@@ -1,4 +1,4 @@
-import { SchemaFieldInput } from './_parseFields';
+import { SchemaFieldInput, SchemaLike } from './_parseFields';
 import { RecordFieldDef } from './RecordField';
 
 export type TCursor = {
@@ -68,7 +68,8 @@ export type FieldDefinitions = {
 
   schema:
     | { [K: string]: SchemaFieldInput }
-    | Readonly<{ [K: string]: SchemaFieldInput }>;
+    | Readonly<{ [K: string]: SchemaFieldInput }>
+    | SchemaLike;
 
   union: SchemaFieldInput[] | Readonly<SchemaFieldInput[]>;
 

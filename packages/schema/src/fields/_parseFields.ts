@@ -5,11 +5,11 @@ import {
 } from './_fieldDefinitions';
 import { NullableToPartial } from '@darch/utils/dist/typeUtils';
 
-type SchemaLike = {
-  definition: any;
+export interface SchemaLike {
+  definition: { [K: string]: any };
   __isDarchSchema: true;
   _infer: any;
-};
+}
 
 export type SchemaFieldInput =
   | SchemaLike
@@ -18,11 +18,12 @@ export type SchemaFieldInput =
   | FlattenFieldDefinition
   | SchemaInputArray
   | Readonly<SchemaInputArray>;
+
 // https://github.com/microsoft/TypeScript/issues/3496#issuecomment-128553540
-interface SchemaInputArray extends Array<SchemaFieldInput> {}
+interface SchemaInputArray extends Readonly<Array<SchemaFieldInput>> {}
 
 export interface SchemaDefinitionInput {
-  [K: string]: SchemaFieldInput | Readonly<SchemaFieldInput>;
+  [K: string]: SchemaFieldInput;
 }
 
 export type InferField<Input> = GetI<ToFinalField<Input>>;
@@ -34,11 +35,11 @@ export type ParseFields<Input> = {
 export type FinalFieldDefinition = {
   [K in FieldTypeName]: {
     type: K;
-    def: any; // TODO can infer or will go infinite looping
+    def?: any; // TODO can infer or will go infinite looping
     list?: boolean;
     optional?: boolean;
     description?: string;
-    __infer: unknown;
+    __infer?: unknown;
   };
 }[FieldTypeName];
 
@@ -110,7 +111,20 @@ export type ToFinalField<Base> =
           ? ParseStringDefinition<Base>
           : // ==== end handling FieldAsString ====
 
-            // ==== start handling FieldAsTypeKey ====
+          Base extends {
+              type: FieldTypeName;
+              def?: infer Def;
+              list?: boolean;
+              optional?: boolean;
+            }
+          ? {
+              type: Base['type'];
+              def: Def;
+              list: Base extends { list: true } ? true : undefined;
+              optional: Base extends { optional: true } ? true : undefined;
+              description: string | undefined;
+            }
+          : // ==== start handling FieldAsTypeKey ====
             {
               [K in keyof ParseFieldAsKey<Base>]: ParseFieldAsKey<Base>[K];
             }
