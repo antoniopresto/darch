@@ -4,9 +4,9 @@ import { uniq } from '@darch/utils/dist/uniq';
 
 import { FieldType, FieldTypeParser } from '../FieldType';
 import type { FieldDefinitionConfig } from '../TSchemaConfig';
-import type { Infer } from '../TSchemaParser';
 
 import type { AnyFieldTypeInstance } from './fieldTypes';
+import {Infer} from "../Infer";
 
 export class UnionField<U extends FieldDefinitionConfig, T extends Readonly<[U, ...U[]]>> extends FieldType<
   Infer<T[number]>,

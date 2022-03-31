@@ -1,7 +1,7 @@
 import { assert, IsExact } from 'conditional-type-checks';
 
 import { createSchema, Schema } from '../Schema';
-import { Infer } from '../TSchemaParser';
+import {Infer} from "../Infer";
 
 const userSchema = new Schema({
   name: 'string',

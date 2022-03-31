@@ -4,12 +4,16 @@ import { getKeys } from '@darch/utils/dist/getKeys';
 import { invariantType } from '@darch/utils/dist/invariant';
 import { JSONSchema4 } from 'json-schema';
 
-import { isSchema, Schema } from './Schema';
+import { isSchema } from './Schema';
 import { SchemaDefinitionInput } from './TSchemaConfig';
-import { AnyParsedSchemaDefinition } from './TSchemaParser';
 import { FieldTypeName } from './fields/fieldTypes';
 import { parseFieldDefinitionConfig } from './parseSchemaDefinition';
-import { FinalFieldDefinition } from './fields/_parseFields';
+
+import {
+  FinalFieldDefinition,
+  FinalSchemaDefinition,
+  SchemaLike,
+} from './fields/_parseFields';
 
 /**
  * Converts a schema to a json-schema format
@@ -18,14 +22,14 @@ import { FinalFieldDefinition } from './fields/_parseFields';
  */
 export function schemaToJSON(
   parentName: string,
-  schema: Schema<SchemaDefinitionInput> | SchemaDefinitionInput
+  schema: SchemaLike | SchemaDefinitionInput
 ): JSONSchema4 & { properties: JSONSchema4 } {
-  let definition: AnyParsedSchemaDefinition;
+  let definition: FinalSchemaDefinition;
 
   if (isSchema(schema)) {
-    definition = schema.definition as AnyParsedSchemaDefinition;
+    definition = schema.definition as FinalSchemaDefinition;
   } else {
-    definition = schema as AnyParsedSchemaDefinition;
+    definition = schema as FinalSchemaDefinition;
   }
 
   const description = isSchema(schema) ? schema._description : undefined;

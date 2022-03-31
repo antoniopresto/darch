@@ -3,9 +3,9 @@ import { inspectObject } from '@darch/utils/dist/inspectObject';
 
 import { FieldType, FieldTypeParser } from '../FieldType';
 import type { FieldDefinitionConfig } from '../TSchemaConfig';
-import type { Infer } from '../TSchemaParser';
 
 import type { AnyFieldTypeInstance } from './fieldTypes';
+import {Infer} from "../Infer";
 
 const validKeyTypes = ['int', 'string', 'float'] as const;
 type ValidKeyType = typeof validKeyTypes[number];

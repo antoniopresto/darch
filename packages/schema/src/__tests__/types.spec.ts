@@ -1,10 +1,10 @@
 import { assert, IsExact } from 'conditional-type-checks';
 
 import { createSchema, Schema } from '../Schema';
-import { ParsedFieldDefinition, Infer } from '../TSchemaParser';
 import { EnumField } from '../fields/EnumField';
 import { parseSchemaDefinition } from '../parseSchemaDefinition';
 import { ParseStringDefinition } from '../parseStringDefinition';
+import {Infer} from "../Infer";
 
 describe('typings', () => {
   test('enum', () => {
@@ -229,9 +229,7 @@ describe('typings', () => {
       },
     } as const);
 
-    type P = ParsedFieldDefinition<typeof schema1>;
-
-    type Result = Infer<P>;
+    type Result = Infer<typeof schema1>;
 
     type Expected = {
       a?: string | undefined;

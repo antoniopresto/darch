@@ -1,16 +1,25 @@
 import { RuntimeError } from '@darch/utils/dist/RuntimeError';
 import { getKeys } from '@darch/utils/dist/getKeys';
-import { camelCase, schemaComposer as defaultSchemaComposer, upperFirst } from 'graphql-compose';
+
+import {
+  camelCase,
+  schemaComposer as defaultSchemaComposer,
+  upperFirst,
+} from 'graphql-compose';
 
 import { TAnyFieldType } from './FieldType';
 import { SchemaDefinitionInput } from './TSchemaConfig';
-import { ParsedFieldDefinition, ParsedSchemaDefinition } from './TSchemaParser';
 import { fieldTypeConstructors } from './fields/fieldTypes';
 import { parseSchemaDefinition } from './parseSchemaDefinition';
 
+import {
+  FinalFieldDefinition,
+  FinalSchemaDefinition,
+} from './fields/_parseFields';
+
 export function schemaToGQL(
   typeName: string,
-  definition: SchemaDefinitionInput | ParsedSchemaDefinition<any>,
+  definition: SchemaDefinitionInput | FinalSchemaDefinition,
   schemaComposer = defaultSchemaComposer
 ) {
   const fields: any = {};
@@ -25,7 +34,12 @@ export function schemaToGQL(
       const otc = schemaToGQL(subName, field.def as any);
       fields[fieldName] = otc.getTypeName();
     } else {
-      fields[fieldName] = fieldToGraphql({ field, parentName: typeName, fieldName, schemaComposer });
+      fields[fieldName] = fieldToGraphql({
+        field,
+        parentName: typeName,
+        fieldName,
+        schemaComposer,
+      });
     }
   });
 
@@ -36,12 +50,17 @@ export function schemaToGQL(
 }
 
 export function fieldToGraphql(params: {
-  field: ParsedFieldDefinition<any>;
+  field: FinalFieldDefinition;
   parentName: string;
   fieldName: string;
   schemaComposer?: typeof defaultSchemaComposer;
 }) {
-  const { fieldName, field, schemaComposer = defaultSchemaComposer, parentName } = params;
+  const {
+    fieldName,
+    field,
+    schemaComposer = defaultSchemaComposer,
+    parentName,
+  } = params;
 
   function getType() {
     try {
@@ -50,11 +69,14 @@ export function fieldToGraphql(params: {
       const typeConstructor = fieldTypeConstructors[field.type];
 
       if (!typeConstructor?.create) {
-        throw new RuntimeError(`Failed to find constructor for field type ${field?.type}`, {
-          field,
-          typeConstructor,
-          fieldTypeConstructors,
-        });
+        throw new RuntimeError(
+          `Failed to find constructor for field type ${field?.type}`,
+          {
+            field,
+            typeConstructor,
+            fieldTypeConstructors,
+          }
+        );
       }
 
       const type: TAnyFieldType = typeConstructor.create(def);
@@ -78,7 +100,9 @@ export function fieldToGraphql(params: {
       });
     }
 
-    throw new Error(`invalid graphql definition for field "${fieldName}" with type "${field.type}"`);
+    throw new Error(
+      `invalid graphql definition for field "${fieldName}" with type "${field.type}"`
+    );
   }
 
   const type: any = getType();
@@ -103,7 +127,9 @@ function isSDL(t: any): t is { name: string; sdl: string } {
   return typeof t?.sdl === 'string' && typeof t?.name === 'string';
 }
 
-function hasFields(t: any): t is { name: string; fields: Record<string, string> } {
+function hasFields(
+  t: any
+): t is { name: string; fields: Record<string, string> } {
   return typeof t?.fields === 'object' && typeof t?.name === 'string';
 }
 

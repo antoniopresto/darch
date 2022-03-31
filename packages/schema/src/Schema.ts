@@ -7,26 +7,23 @@ import { simpleObjectClone } from '@darch/utils/dist/simpleObjectClone';
 import { ForceString } from '@darch/utils/dist/typeUtils';
 
 import { SchemaDefinitionInput } from './TSchemaConfig';
-import {
-  AnyParsedSchemaDefinition,
-  ParsedSchemaDefinition,
-  Infer,
-} from './TSchemaParser';
+
 import {
   parseValidationError,
   ValidationCustomMessage,
 } from './applyValidator';
+
 import { parseSchemaFields } from './getSchemaErrors';
 import { parseSchemaDefinition } from './parseSchemaDefinition';
+import {FinalSchemaDefinition, ParseFields} from './fields/_parseFields';
+import { Infer } from './Infer';
 
 export * from './schemaInferenceUtils';
 
 export class Schema<DefinitionInput extends SchemaDefinitionInput> {
-  _infer!: Infer<DefinitionInput>;
-
   private readonly __definition: any;
 
-  get definition(): ParsedSchemaDefinition<DefinitionInput> {
+  get definition(): ParseFields<DefinitionInput> {
     return this.__definition;
   }
 
@@ -121,7 +118,7 @@ export class Schema<DefinitionInput extends SchemaDefinitionInput> {
 
     invariantType({ commentsConfig }, 'object', { commentsConfig });
 
-    const definition: AnyParsedSchemaDefinition = this.definition as any;
+    const definition: FinalSchemaDefinition = this.definition as any;
 
     Object.entries(commentsConfig).forEach(([name, comment]) => {
       invariantType(
@@ -205,18 +202,16 @@ export function createSchema<
   return new Schema<DefinitionInput>(fields);
 }
 
-type OmitDefinitionFields<
-  T,
-  Keys extends string
-> = T extends SchemaDefinitionInput
+type OmitDefinitionFields<T, Keys extends string> = T extends {
+  [K: string]: any;
+}
   ? Schema<{ [K in keyof T as K extends Keys ? never : K]: T[K] }>
   : never;
 
-type ExtendDefinition<
-  T,
-  Ext extends SchemaDefinitionInput
-> = T extends SchemaDefinitionInput
-  ? Schema<{
-      [K in keyof (T & Ext)]: (T & Ext)[K];
-    }>
+type ExtendDefinition<T, Ext> = T extends { [K: string]: any }
+  ? Ext extends { [K: string]: any }
+    ? Schema<{
+        [K in keyof (T & Ext)]: (T & Ext)[K];
+      }>
+    : never
   : never;

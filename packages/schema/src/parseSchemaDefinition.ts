@@ -7,22 +7,24 @@ import { simpleObjectClone } from '@darch/utils/dist/simpleObjectClone';
 import { isFieldType } from './FieldType';
 import { isSchema, Schema } from './Schema';
 import { FieldDefinitionConfig } from './TSchemaConfig';
-import { ParsedFieldDefinition, ParsedSchemaDefinition } from './TSchemaParser';
 import { fieldInstanceFromDef } from './fieldInstanceFromDef';
+
 import {
   AnyFieldTypeInstance,
   fieldTypeConstructors,
 } from './fields/fieldTypes';
+
 import {
   isStringFieldDefinition,
   parseStringDefinition,
 } from './parseStringDefinition';
-import { FinalFieldDefinition } from './fields/_parseFields';
+
+import { FinalFieldDefinition, SchemaLike } from './fields/_parseFields';
 
 export function parseSchemaField<T extends FieldDefinitionConfig>(
   fieldName: string,
   definition: T
-): ParsedFieldDefinition<T>;
+): FinalFieldDefinition;
 
 export function parseSchemaField<T extends FieldDefinitionConfig>(
   fieldName: string,
@@ -58,16 +60,14 @@ export function parseSchemaField<T extends FieldDefinitionConfig>(
 
 export function parseFieldDefinitionConfig(
   definition: FieldDefinitionConfig
-): ParsedFieldDefinition<any> {
+): FinalFieldDefinition {
   if (isSchemaLiteral(definition)) {
     const { schema, description, optional = false, list = false } = definition;
 
-    const def: any = parseSchemaDefinition(schema);
-
     return {
       type: 'schema',
-      def,
-      description,
+      def: schema.definition,
+      description: description,
       optional,
       list,
     };
@@ -158,8 +158,8 @@ export function parseFieldDefinitionConfig(
   throw new Error(`Unexpected field definition: ${inspectObject(definition)}`);
 }
 
-export function parseSchemaDefinition<T>(input: T): ParsedSchemaDefinition<T> {
-  const result = {} as ParsedSchemaDefinition<T>;
+export function parseSchemaDefinition<T>(input: T): FinalFieldDefinition {
+  const result = {} as FinalFieldDefinition;
 
   getKeys(input).forEach(function (fieldName) {
     try {
@@ -169,9 +169,9 @@ export function parseSchemaDefinition<T>(input: T): ParsedSchemaDefinition<T> {
       );
     } catch (err) {
       throw new RuntimeError(`failed to process schema`, {
-        err,
-        input,
         fieldName,
+        input,
+        err,
       });
     }
   });
@@ -198,17 +198,12 @@ export function isSchemaAsTypeDefinition(
 }
 
 function isSchemaLiteral(input: any): input is {
-  schema: any;
+  schema: SchemaLike;
   optional?: boolean;
   list?: boolean;
   description?: string;
 } {
-  return Boolean(
-    !input?.type &&
-      input?.schema &&
-      typeof input.schema === 'object' &&
-      !isFieldType(input)
-  );
+  return isSchema(input?.schema);
 }
 
 const validTypes = {
@@ -253,7 +248,7 @@ export function parseSingleKeyObjectDefinition(input: any) {
     }
   }
 
-  let { description = '', optional = false, list = false } = input;
+  let { description, optional = false, list = false } = input;
 
   if (type === 'union') {
     def = def.map((el) => parseFieldDefinitionConfig(el));

@@ -2,7 +2,6 @@ import { assert, IsExact } from 'conditional-type-checks';
 
 import { TCursor } from '../_fieldDefinitions';
 import { InferField } from '../_parseFields';
-import { Schema } from '../../Schema';
 
 type AnyRecord = { [K: string]: any };
 
@@ -285,8 +284,4 @@ test('ParseFields schema typings', () => {
       { name?: never[] | undefined }
     >
   >(true);
-
-  const schema = new Schema({});
-
-  expect(schema).toEqual({});
 });

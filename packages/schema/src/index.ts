@@ -1,3 +1,3 @@
-export * from './TSchemaParser';
+export * from './Infer';
 export * from './TSchemaConfig';
 export * from './Schema';

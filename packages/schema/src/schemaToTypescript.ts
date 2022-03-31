@@ -1,8 +1,8 @@
 import { compile } from 'json-schema-to-typescript';
 
-import { Schema } from './Schema';
 import { SchemaDefinitionInput } from './TSchemaConfig';
 import { schemaToJSON } from './schemaToJSON';
+import { SchemaLike } from './fields/_parseFields';
 
 const defaultBannerComment = `
  /* tslint:disable */
@@ -20,7 +20,7 @@ const defaultBannerComment = `
  */
 export async function schemaToTypescript(
   name: string,
-  schema: Schema<any> | SchemaDefinitionInput,
+  schema: SchemaLike | SchemaDefinitionInput,
   options?: {
     bannerComment?: string;
     format?: boolean;

@@ -1,6 +1,6 @@
 import {
-  FieldTypeName,
   FieldDefinitions,
+  FieldTypeName,
   InferFieldType,
 } from './_fieldDefinitions';
 import { NullableToPartial } from '@darch/utils/dist/typeUtils';
@@ -8,7 +8,6 @@ import { NullableToPartial } from '@darch/utils/dist/typeUtils';
 export interface SchemaLike {
   definition: { [K: string]: any };
   __isDarchSchema: true;
-  _infer: any;
 }
 
 export type SchemaFieldInput =
@@ -18,6 +17,7 @@ export type SchemaFieldInput =
   | FlattenFieldDefinition
   | SchemaInputArray
   | Readonly<SchemaInputArray>;
+// should update Infer.ts if add any new type here
 
 // https://github.com/microsoft/TypeScript/issues/3496#issuecomment-128553540
 interface SchemaInputArray extends Readonly<Array<SchemaFieldInput>> {}
@@ -26,11 +26,17 @@ export interface SchemaDefinitionInput {
   [K: string]: SchemaFieldInput;
 }
 
+export type InferSchemaDefinition<Def> = NullableToPartial<{
+  -readonly [K in keyof Def]: InferField<Def[K]>;
+}>;
+
 export type InferField<Input> = GetI<ToFinalField<Input>>;
 
 export type ParseFields<Input> = {
   -readonly [K in keyof Input]: ToFinalField<Input[K]>;
 };
+
+export type FinalSchemaDefinition = { [K: string]: FinalFieldDefinition };
 
 export type FinalFieldDefinition = {
   [K in FieldTypeName]: {
@@ -76,22 +82,18 @@ export type ToFinalField<Base> =
               def: Base['schema']['definition'];
               list: [List] extends [true] ? true : false;
               optional: [Optional] extends [true] ? true : false;
-              __infer: Base['schema']['_infer'];
+              __infer: InferSchemaDefinition<Base['schema']['definition']>;
             }
           : //
           //
-          Base extends {
-              __isDarchSchema: true;
-              definition: infer Parsed;
-              _infer: infer Infer;
-            }
+          Base extends SchemaLike
           ? {
               type: 'schema';
-              def: Parsed;
+              def: Base['definition'];
               list: false;
               optional: false;
               description: string | undefined;
-              __infer: Infer;
+              __infer: InferSchemaDefinition<Base['definition']>;
             }
           : //
 
@@ -147,9 +149,7 @@ type _injectInfer<T> = T extends { __infer: {} }
           // === recursive schema case ===
           T['type'] extends 'schema'
           ? Def extends { [K: string]: any }
-            ? NullableToPartial<{
-                -readonly [K in keyof Def]: InferField<Def[K]>;
-              }>
+            ? InferSchemaDefinition<Def>
             : never
           : //
           // === recursive union case ===

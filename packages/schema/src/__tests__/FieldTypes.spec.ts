@@ -1,7 +1,6 @@
 import { RuntimeError } from '@darch/utils/dist/RuntimeError';
 import { assert, IsExact } from 'conditional-type-checks';
 
-import { Infer } from '../TSchemaParser';
 import { BooleanField } from '../fields/BooleanField';
 import { CursorField, CursorType } from '../fields/CursorField';
 import { DateField } from '../fields/DateField';
@@ -16,6 +15,7 @@ import { UnknownField } from '../fields/UnknownField';
 import { createSchema } from '../index';
 import { fieldToGraphql, schemaToGQL } from '../schemaToGQL';
 import { schemaToTypescript } from '../schemaToTypescript';
+import {Infer} from "../Infer";
 
 describe('FieldTypes', () => {
   describe('field to graphql', () => {
@@ -139,7 +139,7 @@ describe('FieldTypes', () => {
         nameOpt: 'ulid?',
         nameList: '[ulid]',
         nameListOptional: '[ulid]?',
-        nameFromType: UlidField.create().list().optional(),
+        // nameFromType: UlidField.create().list().optional(),
         defObject: {
           type: 'ulid',
           optional: true,
@@ -170,7 +170,7 @@ describe('FieldTypes', () => {
             nameOpt?: string | undefined;
             nameList: string[];
             nameListOptional?: string[] | undefined;
-            nameFromType?: string[] | undefined;
+            // nameFromType?: string[] | undefined;
             defObject?: string[] | undefined;
           }
         >
@@ -264,7 +264,7 @@ describe('FieldTypes', () => {
         nameOpt: 'float?',
         nameList: '[float]',
         nameListOptional: '[float]?',
-        nameFromType: FloatField.create().list().optional(),
+        // nameFromType: FloatField.create().list().optional(),
         defObject: {
           type: 'float',
           optional: true,
@@ -371,7 +371,7 @@ describe('FieldTypes', () => {
         nameOpt: 'email?',
         nameList: '[email]',
         nameListOptional: '[email]?',
-        nameFromType: EmailField.create().list().optional(),
+        // nameFromType: EmailField.create().list().optional(),
         defObject: {
           type: 'email',
           optional: true,
@@ -553,7 +553,7 @@ describe('FieldTypes', () => {
         nameOpt: 'date?',
         nameList: '[date]',
         nameListOptional: '[date]?',
-        nameFromType: DateField.create().list().optional(),
+        // nameFromType: DateField.create().list().optional(),
         defObject: {
           type: 'date',
           optional: true,
@@ -636,7 +636,7 @@ describe('FieldTypes', () => {
         nameOpt: 'cursor?',
         nameList: '[cursor]',
         nameListOptional: '[cursor]?',
-        nameFromType: CursorField.create().list().optional(),
+        // nameFromType: CursorField.create().list().optional(),
         defObject: {
           type: 'cursor',
           optional: true,
@@ -696,7 +696,7 @@ describe('FieldTypes', () => {
         nameOpt: 'boolean?',
         nameList: '[boolean]',
         nameListOptional: '[boolean]?',
-        nameFromType: BooleanField.create().list().optional(),
+        // nameFromType: BooleanField.create().list().optional(),
         defObject: {
           type: 'boolean',
           optional: true,
@@ -760,7 +760,7 @@ describe('FieldTypes', () => {
         nameOpt: 'unknown?',
         nameList: '[unknown]',
         nameListOptional: '[unknown]?',
-        nameFromType: UnknownField.create().list().optional(),
+        // nameFromType: UnknownField.create().list().optional(),
         defObject: {
           type: 'unknown',
           optional: true,

@@ -1,9 +1,11 @@
 import { memo } from '@darch/utils/dist/memo';
 
-import { ParsedFieldDefinition } from './TSchemaParser';
 import { FieldTypeName, isFieldTypeName } from './fields/fieldTypes';
+import { FinalFieldDefinition } from './fields/_parseFields';
 
-function _parseStringDefinition<T extends AnyStringFieldDefinition>(typeName: T): ParsedFieldDefinition<T> {
+function _parseStringDefinition<T extends AnyStringFieldDefinition>(
+  typeName: T
+): FinalFieldDefinition {
   const t = typeNameFromTemplate(typeName);
   const isOptional = isOptionalTemplate(typeName);
   const isList = isListTemplate(typeName);
@@ -17,15 +19,21 @@ function _parseStringDefinition<T extends AnyStringFieldDefinition>(typeName: T)
   return obj as any;
 }
 
-function _isOptionalTemplate<T extends string>(type: T): T extends `${string}?` ? true : false {
+function _isOptionalTemplate<T extends string>(
+  type: T
+): T extends `${string}?` ? true : false {
   return !!type.match(/\?$/) as any;
 }
 
-function _isListTemplate<T extends string>(type: T): T extends `[${string}]` | `[${string}]?` ? true : false {
+function _isListTemplate<T extends string>(
+  type: T
+): T extends `[${string}]` | `[${string}]?` ? true : false {
   return !!type.match(/]\??$/) as any;
 }
 
-function _typeNameFromTemplate<T extends FieldTypeName>(enhanced: AnyStringFieldDefinition): T {
+function _typeNameFromTemplate<T extends FieldTypeName>(
+  enhanced: AnyStringFieldDefinition
+): T {
   return enhanced.replace(/[\[\]?, ]/g, '') as any;
 }
 
@@ -62,7 +70,13 @@ export type ExtractStringFieldDefType<T extends AnyStringFieldDefinition> =
 export type ParseStringDefinition<S> =
   //
   S extends FieldTypeName
-    ? { type: S; list: false; optional: false; def: undefined; description?: string }
+    ? {
+        type: S;
+        list: false;
+        optional: false;
+        def: undefined;
+        description?: string;
+      }
     : //
     //
     S extends `${FieldTypeName}?`

@@ -1,11 +1,11 @@
 import { assert, IsExact } from 'conditional-type-checks';
 
 import { createSchema } from '../Schema';
-import { Infer } from '../TSchemaParser';
 import { EnumField } from '../fields/EnumField';
 import { parseSchemaField, parseSingleKeyObjectDefinition } from '../parseSchemaDefinition';
 
 import { schemaMocks } from './__mock__';
+import {Infer} from "../Infer";
 
 const { typeDefs, stringDefTypes, schema2 } = schemaMocks;
 
