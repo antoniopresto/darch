@@ -1,5 +1,6 @@
-import { SchemaFieldInput, SchemaLike } from './_parseFields';
+import { SchemaFieldInput} from './_parseFields';
 import { RecordFieldDef } from './RecordField';
+import {SchemaLike} from "./ISchemaLike";
 
 export type TCursor = {
   pk: string;

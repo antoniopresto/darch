@@ -1,7 +1,8 @@
 import { memo } from '@darch/utils/dist/memo';
 
-import { FieldTypeName, isFieldTypeName } from './fields/fieldTypes';
+import { isFieldTypeName } from './fields/fieldTypes';
 import { FinalFieldDefinition } from './fields/_parseFields';
+import { FieldTypeName } from './fields/_fieldDefinitions';
 
 function _parseStringDefinition<T extends AnyStringFieldDefinition>(
   typeName: T

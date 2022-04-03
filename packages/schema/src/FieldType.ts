@@ -29,11 +29,12 @@ export abstract class FieldType<
 > {
   readonly typeName: TypeName;
   type: TypeName;
-  readonly __infer!: Type;
+  readonly __fieldTypeClassInfer!: Type;
   readonly def: Def;
 
   protected constructor(typeName: TypeName, def: Def) {
     this.typeName = typeName;
+    this.type = typeName;
     expectedType({ [`${typeName} definition`]: def }, [
       'object',
       'array',
@@ -58,7 +59,7 @@ export abstract class FieldType<
   optional = false;
   list = false;
 
-  toOptional(): this & { isOptional: true } {
+  toOptional(): this & { optional: true } {
     this.optional = true;
     return this as any;
   }
@@ -112,6 +113,7 @@ export abstract class FieldType<
   };
 
   toSchemaFieldType = () => {
+    debugger
     return {
       type: this.type,
       def: this.def,
@@ -134,8 +136,12 @@ export abstract class FieldType<
       fieldName
     )}${upperFirst(this.typeName)}`);
   };
+
+  static create(..._args: any[]): TAnyFieldType {
+    throw new Error('not implemented in abstract class.');
+  }
 }
 
-export function isFieldType(t: any): t is FieldType<any, any, any> {
+export function isFieldInstance(t: any): t is TAnyFieldType {
   return t?.__isFieldType === true;
 }

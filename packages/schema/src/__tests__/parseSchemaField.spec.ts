@@ -1,21 +1,23 @@
-import { assert, IsExact } from 'conditional-type-checks';
-
 import { createSchema } from '../Schema';
 import { EnumField } from '../fields/EnumField';
-import { parseSchemaField, parseSingleKeyObjectDefinition } from '../parseSchemaDefinition';
+import {
+  parseSchemaField,
+  parseFlattenFieldDefinition,
+} from '../parseSchemaDefinition';
 
 import { schemaMocks } from './__mock__';
-import {Infer} from "../Infer";
 
 const { typeDefs, stringDefTypes, schema2 } = schemaMocks;
 
 describe('parseSchemaField', () => {
-  test('isSingleKeyObjectDefinition', () => {
-    expect(parseSingleKeyObjectDefinition(EnumField.create(['a', 'b']))).toEqual(false);
-    expect(parseSingleKeyObjectDefinition('string')).toEqual(false);
-    expect(parseSingleKeyObjectDefinition({ type: 'string' })).toEqual(false);
+  test('parseFlattenFieldDefinition', () => {
+    expect(parseFlattenFieldDefinition(EnumField.create(['a', 'b']))).toEqual(
+      false
+    );
+    expect(parseFlattenFieldDefinition('string')).toEqual(false);
+    expect(parseFlattenFieldDefinition({ type: 'string' })).toEqual(false);
     expect(
-      parseSingleKeyObjectDefinition({
+      parseFlattenFieldDefinition({
         gender: {
           type: 'enum',
           def: ['male', 'female', 'other'],
@@ -25,21 +27,21 @@ describe('parseSchemaField', () => {
     ).toEqual(false);
 
     expect(
-      parseSingleKeyObjectDefinition({
+      parseFlattenFieldDefinition({
         schema: {
           name: 'string',
         },
       })
     ).toEqual({
       def: { name: 'string' },
-      description: '',
+      description: undefined,
       list: false,
       optional: false,
       type: 'schema',
     });
 
     expect(
-      parseSingleKeyObjectDefinition({
+      parseFlattenFieldDefinition({
         string: {
           min: 1,
         },
@@ -50,14 +52,14 @@ describe('parseSchemaField', () => {
       def: {
         min: 1,
       },
-      description: '',
+      description: undefined,
       list: true,
       optional: true,
       type: 'string',
     });
 
     expect(
-      parseSingleKeyObjectDefinition({
+      parseFlattenFieldDefinition({
         string: {
           min: 1,
         },
@@ -68,7 +70,7 @@ describe('parseSchemaField', () => {
     const spyWarn = jest.spyOn(console, 'warn');
     expect(spyWarn).toBeCalledTimes(0);
     expect(
-      parseSingleKeyObjectDefinition({
+      parseFlattenFieldDefinition({
         string: {
           type: 'enum',
           def: ['male', 'female', 'other'],
@@ -80,7 +82,9 @@ describe('parseSchemaField', () => {
   });
 
   test('enumStringArray', () => {
-    const sut = parseSchemaField('enumStringArray', ['a', 'b', 'c'] as const);
+    const sut = parseSchemaField('enumStringArray', {
+      enum: ['a', 'b', 'c'],
+    } as const);
 
     expect(sut).toEqual({
       type: 'enum',
@@ -88,15 +92,21 @@ describe('parseSchemaField', () => {
       list: false,
       def: ['a', 'b', 'c'],
     });
-
-    type FinalType = Infer<{ sut: typeof sut }>;
-    assert<IsExact<FinalType, { sut: 'a' | 'b' | 'c' }>>(true);
   });
 
   test('enum FieldType', () => {
-    const single = parseSchemaField('enum FieldType', EnumField.create(['a', 'b']));
-    const list = parseSchemaField('enum FieldType', EnumField.create(['a', 'b']).toList());
-    const listOptional = parseSchemaField('enum FieldType', EnumField.create(['a', 'b']).toList().toOptional());
+    const single = parseSchemaField(
+      'enum FieldType',
+      EnumField.create(['a', 'b'])
+    );
+    const list = parseSchemaField(
+      'enum FieldType',
+      EnumField.create(['a', 'b']).toList()
+    );
+    const listOptional = parseSchemaField(
+      'enum FieldType',
+      EnumField.create(['a', 'b']).toList().toOptional()
+    );
 
     expect(single).toEqual({
       type: 'enum',
@@ -118,14 +128,6 @@ describe('parseSchemaField', () => {
       list: true,
       def: ['a', 'b'],
     });
-
-    type EnumFinalType = Infer<{ sut: typeof single }>;
-    type EnumListFinalType = Infer<{ sut: typeof list }>;
-    type EnumListOptionalFinalType = Infer<{ sut: typeof listOptional }>;
-
-    assert<IsExact<EnumFinalType, { sut: 'a' | 'b' }>>(true);
-    assert<IsExact<EnumListFinalType, { sut: ('a' | 'b')[] }>>(true);
-    assert<IsExact<EnumListOptionalFinalType, { sut?: ('a' | 'b')[] | undefined }>>(true);
   });
 
   test('schemaTypeName', () => {
@@ -194,7 +196,10 @@ describe('parseSchemaField', () => {
   });
 
   test('schemaObjectAsType', () => {
-    const sut = parseSchemaField('schemaObjectAsType', typeDefs.schemaObjectAsType);
+    const sut = parseSchemaField(
+      'schemaObjectAsType',
+      typeDefs.schemaObjectAsType // deprecated
+    );
 
     expect(sut).toEqual({
       list: true,
@@ -240,7 +245,10 @@ describe('parseSchemaField', () => {
   });
 
   test('stringFieldDefinition', () => {
-    const sut = parseSchemaField('stringFieldDefinition', typeDefs.stringFieldDefinition);
+    const sut = parseSchemaField(
+      'stringFieldDefinition',
+      typeDefs.stringFieldDefinition
+    );
 
     expect(sut).toEqual({
       type: 'cursor',
@@ -264,7 +272,10 @@ describe('parseSchemaField', () => {
   });
 
   test('stringDefTypes', () => {
-    const sut = parseSchemaField('stringDefTypes', createSchema(stringDefTypes));
+    const sut = parseSchemaField(
+      'stringDefTypes',
+      createSchema(stringDefTypes)
+    );
 
     expect(sut).toEqual({
       type: 'schema',

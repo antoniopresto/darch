@@ -2,8 +2,9 @@ import {
   FieldAsString,
   FinalFieldDefinition,
   InferField,
-  SchemaLike,
+  
 } from './fields/_parseFields';
+import {SchemaLike} from "./fields/ISchemaLike";
 
 export type Infer<T> = T extends SchemaLike
   ? InferField<{ type: 'schema'; def: T['definition'] }>

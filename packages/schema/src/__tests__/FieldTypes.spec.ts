@@ -15,7 +15,7 @@ import { UnknownField } from '../fields/UnknownField';
 import { createSchema } from '../index';
 import { fieldToGraphql, schemaToGQL } from '../schemaToGQL';
 import { schemaToTypescript } from '../schemaToTypescript';
-import {Infer} from "../Infer";
+import { Infer } from '../Infer';
 
 describe('FieldTypes', () => {
   describe('field to graphql', () => {
@@ -319,7 +319,7 @@ describe('FieldTypes', () => {
 
     test('types', () => {
       const def = {
-        name: ['a', 'x'],
+        name: { enum: ['a', 'x'] },
         nameFromType: EnumField.create(['a', 'x']).toList().toOptional(),
         defObject: {
           type: 'enum',
@@ -429,7 +429,7 @@ describe('FieldTypes', () => {
       );
 
       expect(
-        RecordField.create({ type: [['int', 'boolean']] }).parse({
+        RecordField.create({ type: ['int', 'boolean'] }).parse({
           a: '1',
           b: true,
         })
@@ -451,7 +451,9 @@ describe('FieldTypes', () => {
         nameOpt: 'record?',
         nameList: '[record]',
         nameListOptional: '[record]?',
-        nameFromType: RecordField.create({ type: '[int]?' }).toList().toOptional(),
+        nameFromType: RecordField.create({ type: '[int]?' })
+          .toList()
+          .toOptional(),
         defObject: {
           type: 'record',
           def: {
@@ -788,7 +790,7 @@ describe('FieldTypes', () => {
           T,
           {
             name: unknown;
-            nameOpt?: unknown | undefined;
+            nameOpt?: unknown | undefined; // FIXME should infer as optional
             nameList: unknown[];
             nameListOptional?: unknown[] | undefined;
             nameFromType?: unknown[] | undefined;

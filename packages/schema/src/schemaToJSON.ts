@@ -6,14 +6,14 @@ import { JSONSchema4 } from 'json-schema';
 
 import { isSchema } from './Schema';
 import { SchemaDefinitionInput } from './TSchemaConfig';
-import { FieldTypeName } from './fields/fieldTypes';
 import { parseFieldDefinitionConfig } from './parseSchemaDefinition';
 
 import {
   FinalFieldDefinition,
   FinalSchemaDefinition,
-  SchemaLike,
 } from './fields/_parseFields';
+import { FieldTypeName } from './fields/_fieldDefinitions';
+import { SchemaLike } from './fields/ISchemaLike';
 
 /**
  * Converts a schema to a json-schema format
@@ -106,6 +106,9 @@ function parseField(params: {
   }
 
   const typeParsers: { [K in FieldTypeName]: () => any } = {
+    null() {
+      jsonItem.type = 'null';
+    },
     boolean() {
       jsonItem.type = 'boolean';
     },

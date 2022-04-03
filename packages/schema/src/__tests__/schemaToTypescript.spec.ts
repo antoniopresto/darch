@@ -10,14 +10,14 @@ describe('schemaToTypescript', () => {
       bool: 'boolean?',
       ulids: '[ulid]?',
       dates: '[date]',
-      sex: [[['m', 'f', 'o'] /*TODO undefined*/]],
+      sex: [{ enum: ['m', 'f', 'o'] } /*TODO undefined*/],
       addresses: [
         [
           {
             schema: {
-              kind: ['home'],
+              kind: { enum: ['home'] },
               street: 'string',
-              number: [['string', 'float']],
+              number: { enum: ['string', 'float'] },
             },
             optional: true,
             list: true,
@@ -25,8 +25,8 @@ describe('schemaToTypescript', () => {
           },
           {
             schema: {
-              kind: ['work'],
-              week_days: ['0', '1', '2', '3', '4', '5', '6'],
+              kind: { enum: ['work'] },
+              week_days: { enum: ['0', '1', '2', '3', '4', '5', '6'] },
               name: {
                 schema: {
                   firstName: 'string',

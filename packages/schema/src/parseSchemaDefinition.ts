@@ -4,22 +4,19 @@ import { getTypeName } from '@darch/utils/dist/getTypeName';
 import { inspectObject } from '@darch/utils/dist/inspectObject';
 import { simpleObjectClone } from '@darch/utils/dist/simpleObjectClone';
 
-import { isFieldType } from './FieldType';
+import { isFieldInstance, TAnyFieldType } from './FieldType';
 import { isSchema, Schema } from './Schema';
 import { FieldDefinitionConfig } from './TSchemaConfig';
 import { fieldInstanceFromDef } from './fieldInstanceFromDef';
 
-import {
-  AnyFieldTypeInstance,
-  fieldTypeConstructors,
-} from './fields/fieldTypes';
+import { fieldTypeConstructors } from './fields/fieldTypes';
 
 import {
   isStringFieldDefinition,
   parseStringDefinition,
 } from './parseStringDefinition';
 
-import { FinalFieldDefinition, SchemaLike } from './fields/_parseFields';
+import { FinalFieldDefinition } from './fields/_parseFields';
 
 export function parseSchemaField<T extends FieldDefinitionConfig>(
   fieldName: string,
@@ -30,7 +27,7 @@ export function parseSchemaField<T extends FieldDefinitionConfig>(
   fieldName: string,
   definition: T,
   returnInstance: true
-): AnyFieldTypeInstance | null;
+): TAnyFieldType | null;
 
 export function parseSchemaField<T extends FieldDefinitionConfig>(
   fieldName: string,
@@ -61,16 +58,12 @@ export function parseSchemaField<T extends FieldDefinitionConfig>(
 export function parseFieldDefinitionConfig(
   definition: FieldDefinitionConfig
 ): FinalFieldDefinition {
-  if (isSchemaLiteral(definition)) {
-    const { schema, description, optional = false, list = false } = definition;
+  if (isStringFieldDefinition(definition)) {
+    return parseStringDefinition(definition);
+  }
 
-    return {
-      type: 'schema',
-      def: schema.definition,
-      description: description,
-      optional,
-      list,
-    };
+  if (isFieldInstance(definition)) {
+    return definition.toSchemaFieldType();
   }
 
   if (isFinalFieldDefinition(definition)) {
@@ -79,9 +72,12 @@ export function parseFieldDefinitionConfig(
         throw new RuntimeError(`Missing def for schema field.`, { definition });
       }
       if (isSchema(definition.def)) {
-        throw new RuntimeError(`Def should be a schema.def, not a schema.`, {
-          definition,
-        });
+        throw new RuntimeError(
+          `Def should be a schema definition, not a schema.`,
+          {
+            definition,
+          }
+        );
       }
     }
 
@@ -92,23 +88,12 @@ export function parseFieldDefinitionConfig(
     }
 
     return {
-      ...(definition as any),
+      type: definition.type,
+      description: definition.description,
+      def: definition.def,
       optional: !!definition.optional,
       list: !!definition.list,
     };
-  }
-
-  if (isStringFieldDefinition(definition)) {
-    return parseStringDefinition(definition);
-  }
-
-  if (isStringArray(definition)) {
-    return {
-      type: 'enum',
-      def: definition,
-      optional: false,
-      list: false,
-    } as any;
   }
 
   if (isUnionDefArray(definition)) {
@@ -123,15 +108,6 @@ export function parseFieldDefinitionConfig(
     } as any;
   }
 
-  if (isFieldType(definition)) {
-    return {
-      type: definition.typeName,
-      def: definition.def,
-      optional: !!definition.optional,
-      list: !!definition.list,
-    } as any;
-  }
-
   if (isSchema(definition)) {
     return {
       type: 'schema',
@@ -141,6 +117,7 @@ export function parseFieldDefinitionConfig(
     } as any;
   }
 
+  // deprecated
   if (isSchemaAsTypeDefinition(definition)) {
     return {
       type: 'schema',
@@ -150,7 +127,7 @@ export function parseFieldDefinitionConfig(
     } as any;
   }
 
-  const keyObjectDefinition = parseSingleKeyObjectDefinition(definition);
+  const keyObjectDefinition = parseFlattenFieldDefinition(definition);
   if (keyObjectDefinition) {
     return keyObjectDefinition;
   }
@@ -183,36 +160,27 @@ function isFinalFieldDefinition(input: any): input is FinalFieldDefinition {
   return typeof input?.type === 'string';
 }
 
-function isStringArray<T extends string>(input: any): input is T[] {
-  return Array.isArray(input) && !input.some((el) => typeof el !== 'string');
-}
-
 function isUnionDefArray(input: any): input is [FieldDefinitionConfig[]] {
-  return Array.isArray(input) && input[0] !== 'string';
+  return Array.isArray(input);
 }
 
+/**
+ * Schema as field['type'] is deprecated
+ * @param input
+ */
 export function isSchemaAsTypeDefinition(
   input: any
 ): input is { type: Schema<any>; optional?: boolean; list?: boolean } {
   return input && typeof input === 'object' && isSchema(input.type);
 }
 
-function isSchemaLiteral(input: any): input is {
-  schema: SchemaLike;
-  optional?: boolean;
-  list?: boolean;
-  description?: string;
-} {
-  return isSchema(input?.schema);
-}
-
-const validTypes = {
+const validFlattenDefinitionKeys = {
   description: 'string',
   optional: 'boolean',
   list: 'boolean',
 } as const;
 
-export function parseSingleKeyObjectDefinition(input: any) {
+export function parseFlattenFieldDefinition(input: any) {
   if (getTypeName(input) !== 'Object') return false;
   if (input.type !== undefined) return false;
   const keys = Object.keys(input);
@@ -230,7 +198,7 @@ export function parseSingleKeyObjectDefinition(input: any) {
 
       if (k !== 'schema' && def && typeof def === 'object') {
         for (let defKey in def) {
-          if (defKey === 'def' || validTypes[defKey]) {
+          if (defKey === 'def' || validFlattenDefinitionKeys[defKey]) {
             console.warn(`using field def as type definition?\n`, {
               type: k,
               def,
@@ -241,22 +209,14 @@ export function parseSingleKeyObjectDefinition(input: any) {
       }
     } else {
       if (val !== undefined) {
-        if (typeof val !== validTypes[k]) {
+        if (typeof val !== validFlattenDefinitionKeys[k]) {
           return false;
         }
       }
     }
   }
 
-  let { description, optional = false, list = false } = input;
-
-  if (type === 'union') {
-    def = def.map((el) => parseFieldDefinitionConfig(el));
-    const hasOptionalInDef = def.some((el) => el?.optional === true);
-    if (hasOptionalInDef) {
-      optional = true;
-    }
-  }
+  let { description, optional, list = false } = input;
 
   return parseFieldDefinitionConfig({
     type,
@@ -264,5 +224,5 @@ export function parseSingleKeyObjectDefinition(input: any) {
     description,
     optional,
     list,
-  } as any);
+  });
 }

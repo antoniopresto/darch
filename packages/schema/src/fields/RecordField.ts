@@ -1,11 +1,10 @@
 import { expectedType } from '@darch/utils/dist/expectedType';
 import { inspectObject } from '@darch/utils/dist/inspectObject';
 
-import { FieldType, FieldTypeParser } from '../FieldType';
+import { FieldType, FieldTypeParser, TAnyFieldType } from '../FieldType';
 import type { FieldDefinitionConfig } from '../TSchemaConfig';
 
-import type { AnyFieldTypeInstance } from './fieldTypes';
-import {Infer} from "../Infer";
+import { Infer } from '../Infer';
 
 const validKeyTypes = ['int', 'string', 'float'] as const;
 type ValidKeyType = typeof validKeyTypes[number];
@@ -16,8 +15,16 @@ export type RecordFieldDef = {
 };
 
 export type InferRecordFieldType<Def> = Def extends { keyType: 'int' | 'float' }
-  ? { [K: number]: Infer<Def extends { type: FieldDefinitionConfig } ? Def['type'] : 'any'> }
-  : { [K: string]: Infer<Def extends { type: FieldDefinitionConfig } ? Def['type'] : 'any'> };
+  ? {
+      [K: number]: Infer<
+        Def extends { type: FieldDefinitionConfig } ? Def['type'] : 'any'
+      >;
+    }
+  : {
+      [K: string]: Infer<
+        Def extends { type: FieldDefinitionConfig } ? Def['type'] : 'any'
+      >;
+    };
 
 export class RecordField<Def extends RecordFieldDef> extends FieldType<
   InferRecordFieldType<Def>,
@@ -32,19 +39,18 @@ export class RecordField<Def extends RecordFieldDef> extends FieldType<
 
     const { parseSchemaField } = require('../parseSchemaDefinition');
 
-    let parser: AnyFieldTypeInstance;
+    let parser: TAnyFieldType;
     try {
       parser = parseSchemaField(`RecordField`, def.type, true);
     } catch (e: any) {
-      e.message = `RecordField: failed to create parser for record values: ${e.message}\n${inspectObject(
-        { receivedDef: def },
-        { tabSize: 2 }
-      )}`;
+      e.message = `RecordField: failed to create parser for record values: ${
+        e.message
+      }\n${inspectObject({ receivedDef: def }, { tabSize: 2 })}`;
       e.stack = e.message;
       throw e;
     }
 
-    let keyParser: AnyFieldTypeInstance;
+    let keyParser: TAnyFieldType;
 
     try {
       if (!validKeyTypes.includes(def.keyType as any)) {
@@ -53,10 +59,9 @@ export class RecordField<Def extends RecordFieldDef> extends FieldType<
 
       keyParser = parseSchemaField('RecordFieldKey', def.keyType, true);
     } catch (e: any) {
-      e.message = `RecordField: failed to create parser for record keys: ${e.message}\n${inspectObject(
-        { receivedDef: def },
-        { tabSize: 2 }
-      )}`;
+      e.message = `RecordField: failed to create parser for record keys: ${
+        e.message
+      }\n${inspectObject({ receivedDef: def }, { tabSize: 2 })}`;
       e.stack = e.message;
       throw e;
     }
@@ -86,7 +91,11 @@ export class RecordField<Def extends RecordFieldDef> extends FieldType<
     });
   }
 
-  static create = <Def extends RecordFieldDef = { keyType: 'string'; type: 'any' }>(def?: Def): RecordField<Def> => {
+  static create = <
+    Def extends RecordFieldDef = { keyType: 'string'; type: 'any' }
+  >(
+    def?: Def
+  ): RecordField<Def> => {
     def = { keyType: 'string', type: 'any', ...def } as any;
     return new RecordField(def);
   };

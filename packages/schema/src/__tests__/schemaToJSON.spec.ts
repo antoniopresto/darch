@@ -10,14 +10,14 @@ describe('schemaToJSON', () => {
       bool: 'boolean?',
       ulids: '[ulid]?',
       dates: '[date]',
-      sex: ['m', 'f', 'o'],
+      sex: { enum: ['m', 'f', 'o'] },
       addresses: [
         [
           {
             schema: {
-              kind: ['home'],
+              kind: { enum: ['home'] },
               street: 'string',
-              number: [['string', 'float']],
+              number: ['string', 'float'],
             },
             optional: true,
             list: true,
@@ -25,8 +25,8 @@ describe('schemaToJSON', () => {
           },
           {
             schema: {
-              kind: ['work'],
-              weekDays: ['0', '1', '2', '3', '4', '5', '6'],
+              kind: { enum: ['work'] },
+              weekDays: { enum: ['0', '1', '2', '3', '4', '5', '6'] },
             },
           },
         ],

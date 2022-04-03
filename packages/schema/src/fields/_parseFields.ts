@@ -1,14 +1,6 @@
-import {
-  FieldDefinitions,
-  FieldTypeName,
-  InferFieldType,
-} from './_fieldDefinitions';
-import { NullableToPartial } from '@darch/utils/dist/typeUtils';
-
-export interface SchemaLike {
-  definition: { [K: string]: any };
-  __isDarchSchema: true;
-}
+import {FieldDefinitions, FieldTypeName, InferFieldType,} from './_fieldDefinitions';
+import {NullableToPartial} from '@darch/utils/dist/typeUtils';
+import {SchemaLike} from "./ISchemaLike";
 
 export type SchemaFieldInput =
   | SchemaLike
@@ -194,7 +186,7 @@ type _handleOptional<T> = T extends {
 // === END ParseField == //
 
 // ==== start parsing FieldAsTypeKey utils ====
-type ExtractSingleKeyDef<Input> = Input extends {
+type ExtractFlattenDefDef<Input> = Input extends {
   [K in keyof Input as K extends FieldTypeName ? K : never]: infer Def;
 }
   ? [keyof Def] extends [never]
@@ -202,13 +194,13 @@ type ExtractSingleKeyDef<Input> = Input extends {
     : { def: Def }
   : never;
 
-type ExtractSingleKeyType<Input> = keyof Input extends infer K
+type ExtractFlattenDefType<Input> = keyof Input extends infer K
   ? K extends FieldTypeName
     ? { type: K }
     : never
   : never;
 
-type ExtractSingleKeyCommonConfig<Input extends Record<string, any>> = {
+type ExtractFlattenDefCommonConfig<Input extends Record<string, any>> = {
   list: [Input['list']] extends [true] ? true : false;
   optional: [Input['optional']] extends [true] ? true : false;
   description: [Input['description']] extends ['string']
@@ -218,9 +210,9 @@ type ExtractSingleKeyCommonConfig<Input extends Record<string, any>> = {
 
 type ParseFieldAsKey<Base> =
   //
-  ExtractSingleKeyType<Base> &
-    ExtractSingleKeyDef<Base> &
-    ExtractSingleKeyCommonConfig<Base>;
+  ExtractFlattenDefType<Base> &
+    ExtractFlattenDefDef<Base> &
+    ExtractFlattenDefCommonConfig<Base>;
 // ==== end parsing FieldAsTypeKey utils ====
 
 // ==== start FieldAsString utils ====

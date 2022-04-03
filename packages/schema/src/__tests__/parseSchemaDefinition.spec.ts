@@ -16,12 +16,12 @@ describe('parseSchemaDefinition', () => {
       fieldType: EnumField.create(['a', 'x']),
       fieldTypeOptional: EnumField.create(['a', 'x']).toOptional(),
       fieldTypeOptionalList: EnumField.create(['a', 'x']).toList().toOptional(),
-      schemaAsSingleKey: {
+      schemaAsFlattenDef: {
         schema: {
           name: 'string',
         },
       },
-      unionAsSingleKey: {
+      unionAsFlattenDef: {
         union: ['string', 'int?'],
       },
     });
@@ -76,7 +76,7 @@ describe('parseSchemaDefinition', () => {
         optional: true,
         type: 'string',
       },
-      schemaAsSingleKey: {
+      schemaAsFlattenDef: {
         def: {
           name: {
             list: false,
@@ -88,7 +88,7 @@ describe('parseSchemaDefinition', () => {
         optional: false,
         type: 'schema',
       },
-      unionAsSingleKey: {
+      unionAsFlattenDef: {
         def: [
           {
             list: false,
@@ -112,7 +112,7 @@ describe('parseSchemaDefinition', () => {
   it('parse schema', () => {
     const otherSchema = new Schema({
       foo: 'string',
-      status: ['open', 'closed'],
+      status: { enum: ['open', 'closed'] },
     } as const);
 
     const sass = {

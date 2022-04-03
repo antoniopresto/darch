@@ -1,46 +1,27 @@
 import { expectedType } from '@darch/utils/dist/expectedType';
-import { ulid } from '@darch/utils/dist/ulid';
 
 import { FieldType, FieldTypeParser } from '../FieldType';
 
-type UlidDef = {
-  autoCreate?: boolean;
-};
-
-export const ULID_REGEX = /^[0123456789ABCDEFGHJKMNPQRSTVWXYZ]{26}$/;
-
-export class UlidField extends FieldType<string, 'ulid', UlidDef | undefined> {
+export class NullField extends FieldType<string, 'null', undefined> {
   parse: FieldTypeParser<string>;
 
-  constructor(def: UlidDef = {}) {
-    super('ulid', def);
-
-    const { autoCreate } = def;
-    expectedType({ autoCreate }, 'boolean', true);
+  constructor() {
+    super('null', undefined);
 
     this.parse = this.applyParser({
-      preParse(input) {
-        if (autoCreate && input === undefined) {
-          return ulid();
-        }
-        return input;
-      },
       parse(input: string) {
-        expectedType({ value: input }, 'string');
-        if (!ULID_REGEX.test(input)) throw new Error('Invalid ulid.');
+        expectedType({ value: input }, 'null');
         return input;
       },
     });
   }
 
-  static create = (def?: UlidDef): UlidField => {
-    return new UlidField(def);
+  static create = (): NullField => {
+    return new NullField();
   };
 
-  static isUlid = (value: string) => ULID_REGEX.test(value);
-
   graphql = () => ({
-    name: 'Ulid',
-    sdl: 'scalar Ulid',
+    name: 'Null',
+    sdl: 'scalar Null',
   });
 }

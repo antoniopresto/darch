@@ -2,7 +2,7 @@ import { compile } from 'json-schema-to-typescript';
 
 import { SchemaDefinitionInput } from './TSchemaConfig';
 import { schemaToJSON } from './schemaToJSON';
-import { SchemaLike } from './fields/_parseFields';
+import {SchemaLike} from "./fields/ISchemaLike";
 
 const defaultBannerComment = `
  /* tslint:disable */

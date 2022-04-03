@@ -2,17 +2,15 @@ import { getTypeName } from '@darch/utils/dist/getTypeName';
 import { inspectObject } from '@darch/utils/dist/inspectObject';
 import { uniq } from '@darch/utils/dist/uniq';
 
-import { FieldType, FieldTypeParser } from '../FieldType';
+import { FieldType, FieldTypeParser, TAnyFieldType } from '../FieldType';
 import type { FieldDefinitionConfig } from '../TSchemaConfig';
 
-import type { AnyFieldTypeInstance } from './fieldTypes';
-import {Infer} from "../Infer";
+import { Infer } from '../Infer';
 
-export class UnionField<U extends FieldDefinitionConfig, T extends Readonly<[U, ...U[]]>> extends FieldType<
-  Infer<T[number]>,
-  'union',
-  T
-> {
+export class UnionField<
+  U extends FieldDefinitionConfig,
+  T extends Readonly<[U, ...U[]]>
+> extends FieldType<Infer<T[number]>, 'union', T> {
   //
   parse: FieldTypeParser<Infer<T[number]>>;
 
@@ -21,7 +19,7 @@ export class UnionField<U extends FieldDefinitionConfig, T extends Readonly<[U, 
 
     const { parseSchemaField } = require('../parseSchemaDefinition');
 
-    const parsers: AnyFieldTypeInstance[] = def.map((el, index) => {
+    const parsers: TAnyFieldType[] = def.map((el, index) => {
       try {
         return parseSchemaField(`UnionItem_${index}`, el, true);
       } catch (e: any) {
@@ -49,7 +47,10 @@ export class UnionField<U extends FieldDefinitionConfig, T extends Readonly<[U, 
           try {
             return parser.parse(input);
           } catch (e) {
-            if (parser.typeName === 'schema' && getTypeName(input) === 'Object') {
+            if (
+              parser.typeName === 'schema' &&
+              getTypeName(input) === 'Object'
+            ) {
               schemaErrors.push(e);
             }
           }
@@ -61,12 +62,17 @@ export class UnionField<U extends FieldDefinitionConfig, T extends Readonly<[U, 
 
         const expected = uniq(parsers.map((el) => el.typeName)).join(' or ');
 
-        throw new Error(`Expected value to match one of the following types: ${expected}.`);
+        throw new Error(
+          `Expected value to match one of the following types: ${expected}.`
+        );
       },
     });
   }
 
-  static create = <U extends FieldDefinitionConfig, T extends Readonly<[U, ...U[]]>>(
+  static create = <
+    U extends FieldDefinitionConfig,
+    T extends Readonly<[U, ...U[]]>
+  >(
     def: T
   ): FieldType<Infer<T[number]>, 'union', T> => {
     return new UnionField(def);

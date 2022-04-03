@@ -5,7 +5,7 @@ const schema1 = createSchema({
   name: 'string',
   age: 'int?',
   favorites: '[string]',
-  sex: ['m', 'f', 'o'],
+  sex: { enum: ['m', 'f', 'o'] },
 } as const);
 
 const schema2 = createSchema({
@@ -49,11 +49,16 @@ const typeDefs = {
     type: 'schema',
     def: schema2['definition'],
   },
+
+  /**
+   * @deprecated
+   */
   schemaObjectAsType: {
     type: schema2,
     optional: true,
     list: true,
-  },
+  } as any,
+
   stringFieldDefinition: {
     type: 'cursor',
     list: true,

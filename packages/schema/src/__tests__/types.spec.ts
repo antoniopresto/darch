@@ -2,9 +2,8 @@ import { assert, IsExact } from 'conditional-type-checks';
 
 import { createSchema, Schema } from '../Schema';
 import { EnumField } from '../fields/EnumField';
-import { parseSchemaDefinition } from '../parseSchemaDefinition';
 import { ParseStringDefinition } from '../parseStringDefinition';
-import {Infer} from "../Infer";
+import { Infer } from '../Infer';
 
 describe('typings', () => {
   test('enum', () => {
@@ -27,7 +26,7 @@ describe('typings', () => {
   test('TypeFromSchemaDefinition', () => {
     const otherSchema = new Schema({
       name: 'string',
-      status: ['open', 'closed'],
+      status: { enum: ['open', 'closed'] },
     } as const);
 
     const definition = {
@@ -40,10 +39,10 @@ describe('typings', () => {
       category: { enum: ['general', 'closed'] },
       categoryRO: { enum: ['general', 'closed'] } as const,
       '12Enum': { enum: ['1', '2'] },
-      // enumTypeField: EnumField.create(['x', 'xx']),
+      enumTypeField: EnumField.create(['x', 'xx']),
       otherSchema,
       otherSchemaList: {
-        type: otherSchema,
+        schema: otherSchema,
         list: true,
       },
     } as const;
@@ -74,96 +73,6 @@ describe('typings', () => {
     assert<IsExact<T, Expected>>(true);
   });
 
-  it('parseSchemaDefinition', () => {
-    const sut = parseSchemaDefinition({
-      string: 'string',
-      stringOptional: 'string?',
-      arrayString: '[string]',
-      arrayStringOptional: '[string]?',
-      objectIntDef: {
-        type: 'int',
-      },
-      enum: ['a', 'b'],
-      fieldType: EnumField.create(['a', 'x']),
-      fieldTypeOptional: EnumField.create(['a', 'x']).toOptional(),
-      fieldTypeOptionalList: EnumField.create(['a', 'x']).toList().toOptional(),
-    } as const);
-
-    type Def = typeof sut;
-
-    assert<
-      IsExact<
-        Def,
-        {
-          string: {
-            list: false;
-            optional: false;
-            type: 'string';
-            def: undefined;
-            description?: string;
-          };
-
-          stringOptional: {
-            list: false;
-            optional: true;
-            type: 'string';
-            def: undefined;
-            description?: string;
-          };
-          arrayString: {
-            list: true;
-            optional: false;
-            type: 'string';
-            def: undefined;
-            description?: string;
-          };
-          arrayStringOptional: {
-            list: true;
-            optional: true;
-            type: 'string';
-            def: undefined;
-            description?: string;
-          };
-          objectIntDef: {
-            list: false;
-            optional: false;
-            type: 'int';
-            def: undefined;
-            description?: string;
-          };
-          enum: {
-            def: readonly ['a', 'b'];
-            list: false;
-            optional: false;
-            type: 'enum';
-            description?: string;
-          };
-          fieldType: {
-            def: ['a', 'x'];
-            list: false;
-            optional: false;
-            type: 'enum';
-            description?: string;
-          };
-          fieldTypeOptional: {
-            def: ['a', 'x'];
-            list: false;
-            optional: true;
-            type: 'enum';
-            description?: string;
-          };
-          fieldTypeOptionalList: {
-            def: ['a', 'x'];
-            list: true;
-            optional: true;
-            type: 'enum';
-            description?: string;
-          };
-        }
-      >
-    >(true);
-  });
-
   test('schema as type', () => {
     const schema1 = createSchema({
       name: 'string',
@@ -180,7 +89,7 @@ describe('typings', () => {
 
     const schema2 = createSchema({
       people: schema1,
-      status: ['open', 'closed'],
+      status: { enum: ['open', 'closed'] },
       names: '[string]?',
     } as const);
 
@@ -197,7 +106,7 @@ describe('typings', () => {
     const schema3 = createSchema({
       classes: schema2,
       classesListOptional: {
-        type: schema2,
+        schema: schema2,
         list: true,
         optional: true,
       },
@@ -247,23 +156,23 @@ describe('typings', () => {
 
   // it('union with optional item', () => {
   //   // const soi = UnionField.create([{ type: 'string', optional: true }, 'int'] as const);
-  //   const soi_ = [[{ type: 'string', optional: true }, 'int?']] as const;
+  //   const soi_ = [{ type: 'string', optional: true }, 'int?'] as const;
   //   // type soipp = ParsedFieldDefinition<typeof soi>
   //   type soipp_ = ParsedFieldDefinition<typeof soi_>
   //
   //
   //
   //   const si = UnionField.create([{ type: 'string', optional: false }, 'int'] as const);
-  //   const si_ = [[{ type: 'string', optional: false }, 'int']] as const;
+  //   const si_ = [{ type: 'string', optional: false }, 'int'] as const;
   //
   //   const si2 = UnionField.create([StringField.create(), 'int'] as const);
-  //   const si2_ = [[StringField.create(), 'int']] as const;
+  //   const si2_ = [StringField.create(), 'int'] as const;
   //
   //   const soli = UnionField.create([StringField.create().toList().toOptional(), 'int'] as const);
-  //   const soli_ = [[StringField.create().toList().toOptional(), 'int']] as const;
+  //   const soli_ = [StringField.create().toList().toOptional(), 'int'] as const;
   //
   //   const sli = UnionField.create([StringField.create().toList(), 'int'] as const);
-  //   const sli_ = [[StringField.create().toList(), 'int']] as const;
+  //   const sli_ = [StringField.create().toList(), 'int'] as const;
   //
   //   // const siol = UnionField.create(['[int]?', UnionField.create(['string'])]);
   //
@@ -271,7 +180,7 @@ describe('typings', () => {
   //   const colid_ = [['[cursor]?', 'ulid']] as const;
   //
   //   const unk = UnionField.create(['unknown?', 'int'] as const);
-  //   const unk_ = [['unknown?', 'int']] as const;
+  //   const unk_ = ['unknown?', 'int'] as const;
   //
   //   type T1 = {
   //     soi?: string | undefined | number;
