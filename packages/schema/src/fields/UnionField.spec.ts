@@ -75,9 +75,9 @@ describe('Union', () => {
     const def = {
       uu: [['int?', 'boolean']],
 
-      nameFromType: UnionField.create(['string']).toList().optional(),
+      nameFromType: UnionField.create(['string']).toList().toOptional(),
 
-      nameOrUndefinedListFromType: UnionField.create(['string?']).toList().optional(),
+      nameOrUndefinedListFromType: UnionField.create(['string?']).toList().toOptional(),
 
       defObject: {
         type: 'union',
@@ -415,7 +415,7 @@ describe('Union', () => {
     });
 
     it('respect FieldType union with isOptional: true as optional', () => {
-      const u = UnionField.create(['string', 'int']).optional();
+      const u = UnionField.create(['string', 'int']).toOptional();
       type P = ParsedFieldDefinition<typeof u>;
 
       assert<IsExact<true, P['optional']>>(true);

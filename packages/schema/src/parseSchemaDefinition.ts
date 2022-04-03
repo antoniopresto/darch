@@ -127,8 +127,8 @@ export function parseFieldDefinitionConfig(
     return {
       type: definition.typeName,
       def: definition.def,
-      optional: !!definition.isOptional,
-      list: !!definition.isList,
+      optional: !!definition.optional,
+      list: !!definition.list,
     } as any;
   }
 

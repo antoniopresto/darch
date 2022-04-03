@@ -14,8 +14,8 @@ describe('parseSchemaDefinition', () => {
       arrayStringOptional: '[string]?',
       enum: ['a', 'b'],
       fieldType: EnumField.create(['a', 'x']),
-      fieldTypeOptional: EnumField.create(['a', 'x']).optional(),
-      fieldTypeOptionalList: EnumField.create(['a', 'x']).toList().optional(),
+      fieldTypeOptional: EnumField.create(['a', 'x']).toOptional(),
+      fieldTypeOptionalList: EnumField.create(['a', 'x']).toList().toOptional(),
       schemaAsSingleKey: {
         schema: {
           name: 'string',

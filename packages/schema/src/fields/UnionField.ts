@@ -33,15 +33,15 @@ export class UnionField<U extends FieldDefinitionConfig, T extends Readonly<[U, 
       }
     });
 
-    const hasOptional = (parsers as any[]).some((el) => el.isOptional);
+    const hasOptional = (parsers as any[]).some((el) => el.optional);
 
     if (hasOptional) {
-      this.isOptional = true;
+      this.optional = true;
     }
 
     this.parse = this.applyParser({
       parse: (input: any) => {
-        if (input === undefined && this.isOptional) return input;
+        if (input === undefined && this.optional) return input;
 
         const schemaErrors: any[] = [];
 

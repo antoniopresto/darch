@@ -55,16 +55,16 @@ export abstract class FieldType<
     }
   }
 
-  isOptional = false;
-  isList = false;
+  optional = false;
+  list = false;
 
-  optional(): this & { isOptional: true } {
-    this.isOptional = true;
+  toOptional(): this & { isOptional: true } {
+    this.optional = true;
     return this as any;
   }
 
   toList(): this & { list: true } {
-    this.isList = true;
+    this.list = true;
     return this as any;
   }
 
@@ -77,11 +77,11 @@ export abstract class FieldType<
         input = parser.preParse(input);
       }
 
-      if (input === undefined && !this.isOptional) {
+      if (input === undefined && !this.optional) {
         throw new Error(`Required field`);
       }
 
-      if (this.isList) {
+      if (this.list) {
         if (!Array.isArray(input)) {
           throw new Error(`expected Array, found ${getTypeName(input)}`);
         }
@@ -108,6 +108,15 @@ export abstract class FieldType<
       } catch (originalError: any) {
         throw parseValidationError(input, customMessage, originalError);
       }
+    };
+  };
+
+  toSchemaFieldType = () => {
+    return {
+      type: this.type,
+      def: this.def,
+      list: this.list,
+      optional: this.optional,
     };
   };
 

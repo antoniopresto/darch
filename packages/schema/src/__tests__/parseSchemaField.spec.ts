@@ -96,7 +96,7 @@ describe('parseSchemaField', () => {
   test('enum FieldType', () => {
     const single = parseSchemaField('enum FieldType', EnumField.create(['a', 'b']));
     const list = parseSchemaField('enum FieldType', EnumField.create(['a', 'b']).toList());
-    const listOptional = parseSchemaField('enum FieldType', EnumField.create(['a', 'b']).toList().optional());
+    const listOptional = parseSchemaField('enum FieldType', EnumField.create(['a', 'b']).toList().toOptional());
 
     expect(single).toEqual({
       type: 'enum',

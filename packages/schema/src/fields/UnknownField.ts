@@ -16,7 +16,7 @@ export class UnknownField extends FieldType<unknown, 'unknown', UnknownFieldDef 
     this.parse = this.applyParser({
       parse: (input) => {
         if (input === undefined) {
-          if (this.isOptional) return input;
+          if (this.optional) return input;
           throw new Error(`Required field`);
         }
 

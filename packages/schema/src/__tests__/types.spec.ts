@@ -85,8 +85,8 @@ describe('typings', () => {
       },
       enum: ['a', 'b'],
       fieldType: EnumField.create(['a', 'x']),
-      fieldTypeOptional: EnumField.create(['a', 'x']).optional(),
-      fieldTypeOptionalList: EnumField.create(['a', 'x']).toList().optional(),
+      fieldTypeOptional: EnumField.create(['a', 'x']).toOptional(),
+      fieldTypeOptionalList: EnumField.create(['a', 'x']).toList().toOptional(),
     } as const);
 
     type Def = typeof sut;
@@ -259,8 +259,8 @@ describe('typings', () => {
   //   const si2 = UnionField.create([StringField.create(), 'int'] as const);
   //   const si2_ = [[StringField.create(), 'int']] as const;
   //
-  //   const soli = UnionField.create([StringField.create().toList().optional(), 'int'] as const);
-  //   const soli_ = [[StringField.create().toList().optional(), 'int']] as const;
+  //   const soli = UnionField.create([StringField.create().toList().toOptional(), 'int'] as const);
+  //   const soli_ = [[StringField.create().toList().toOptional(), 'int']] as const;
   //
   //   const sli = UnionField.create([StringField.create().toList(), 'int'] as const);
   //   const sli_ = [[StringField.create().toList(), 'int']] as const;
