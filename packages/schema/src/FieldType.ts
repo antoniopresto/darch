@@ -63,7 +63,7 @@ export abstract class FieldType<
     return this as any;
   }
 
-  list(): this & { isList: true } {
+  toList(): this & { list: true } {
     this.isList = true;
     return this as any;
   }

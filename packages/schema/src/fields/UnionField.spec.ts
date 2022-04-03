@@ -15,7 +15,7 @@ describe('Union', () => {
 
     expect(UnionField.create(['string', 'int']).parse(1)).toEqual(1);
     expect(UnionField.create(['string', 'int']).parse('a')).toEqual('a');
-    expect(UnionField.create(['string', 'int']).list().parse([2, 'x'])).toEqual([2, 'x']);
+    expect(UnionField.create(['string', 'int']).toList().parse([2, 'x'])).toEqual([2, 'x']);
 
     expect(() => UnionField.create(['int?']).parse('ZZ', (v) => `${v}?`)).toThrowError(
       new RuntimeError('ZZ?', { input: 'ZZ' })
@@ -26,7 +26,7 @@ describe('Union', () => {
     const schema1 = createSchema({ name: 'string' });
     const schema2 = createSchema({ sub: schema1 });
     const schema3 = createSchema({ sub: schema2 });
-    const sut = UnionField.create([schema3, schema1]).list();
+    const sut = UnionField.create([schema3, schema1]).toList();
 
     expect(() => sut.parse([2, 'x'])).toThrow('Expected value to match one of the following types: schema.');
 
@@ -75,9 +75,9 @@ describe('Union', () => {
     const def = {
       uu: [['int?', 'boolean']],
 
-      nameFromType: UnionField.create(['string']).list().optional(),
+      nameFromType: UnionField.create(['string']).toList().optional(),
 
-      nameOrUndefinedListFromType: UnionField.create(['string?']).list().optional(),
+      nameOrUndefinedListFromType: UnionField.create(['string?']).toList().optional(),
 
       defObject: {
         type: 'union',

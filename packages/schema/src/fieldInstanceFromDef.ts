@@ -23,7 +23,7 @@ export function fieldInstanceFromDef(
   ].create(definition.def);
 
   if (definition.list) {
-    field = field.list();
+    field = field.toList();
   }
 
   if (definition.optional) {

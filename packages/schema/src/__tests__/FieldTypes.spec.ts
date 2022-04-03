@@ -139,7 +139,7 @@ describe('FieldTypes', () => {
         nameOpt: 'ulid?',
         nameList: '[ulid]',
         nameListOptional: '[ulid]?',
-        nameFromType: UlidField.create().list().optional(),
+        nameFromType: UlidField.create().toList().optional(),
         defObject: {
           type: 'ulid',
           optional: true,
@@ -203,7 +203,7 @@ describe('FieldTypes', () => {
         nameOpt: 'int?',
         nameList: '[int]',
         nameListOptional: '[int]?',
-        nameFromType: IntField.create().list().optional(),
+        nameFromType: IntField.create().toList().optional(),
         defObject: {
           type: 'int',
           optional: true,
@@ -264,7 +264,7 @@ describe('FieldTypes', () => {
         nameOpt: 'float?',
         nameList: '[float]',
         nameListOptional: '[float]?',
-        nameFromType: FloatField.create().list().optional(),
+        nameFromType: FloatField.create().toList().optional(),
         defObject: {
           type: 'float',
           optional: true,
@@ -320,7 +320,7 @@ describe('FieldTypes', () => {
     test('types', () => {
       const def = {
         name: ['a', 'x'],
-        nameFromType: EnumField.create(['a', 'x']).list().optional(),
+        nameFromType: EnumField.create(['a', 'x']).toList().optional(),
         defObject: {
           type: 'enum',
           optional: true,
@@ -371,7 +371,7 @@ describe('FieldTypes', () => {
         nameOpt: 'email?',
         nameList: '[email]',
         nameListOptional: '[email]?',
-        nameFromType: EmailField.create().list().optional(),
+        nameFromType: EmailField.create().toList().optional(),
         defObject: {
           type: 'email',
           optional: true,
@@ -451,7 +451,7 @@ describe('FieldTypes', () => {
         nameOpt: 'record?',
         nameList: '[record]',
         nameListOptional: '[record]?',
-        nameFromType: RecordField.create({ type: '[int]?' }).list().optional(),
+        nameFromType: RecordField.create({ type: '[int]?' }).toList().optional(),
         defObject: {
           type: 'record',
           def: {
@@ -553,7 +553,7 @@ describe('FieldTypes', () => {
         nameOpt: 'date?',
         nameList: '[date]',
         nameListOptional: '[date]?',
-        nameFromType: DateField.create().list().optional(),
+        nameFromType: DateField.create().toList().optional(),
         defObject: {
           type: 'date',
           optional: true,
@@ -636,7 +636,7 @@ describe('FieldTypes', () => {
         nameOpt: 'cursor?',
         nameList: '[cursor]',
         nameListOptional: '[cursor]?',
-        nameFromType: CursorField.create().list().optional(),
+        nameFromType: CursorField.create().toList().optional(),
         defObject: {
           type: 'cursor',
           optional: true,
@@ -696,7 +696,7 @@ describe('FieldTypes', () => {
         nameOpt: 'boolean?',
         nameList: '[boolean]',
         nameListOptional: '[boolean]?',
-        nameFromType: BooleanField.create().list().optional(),
+        nameFromType: BooleanField.create().toList().optional(),
         defObject: {
           type: 'boolean',
           optional: true,
@@ -760,7 +760,7 @@ describe('FieldTypes', () => {
         nameOpt: 'unknown?',
         nameList: '[unknown]',
         nameListOptional: '[unknown]?',
-        nameFromType: UnknownField.create().list().optional(),
+        nameFromType: UnknownField.create().toList().optional(),
         defObject: {
           type: 'unknown',
           optional: true,

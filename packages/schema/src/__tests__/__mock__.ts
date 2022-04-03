@@ -59,7 +59,7 @@ const typeDefs = {
     list: true,
     optional: true,
   },
-  fieldDefAsType: StringField.create({ min: 1, max: 2 }).list().optional(),
+  fieldDefAsType: StringField.create({ min: 1, max: 2 }).toList().optional(),
   ...stringDefTypes,
 } as const;
 
