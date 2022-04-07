@@ -11,9 +11,6 @@ import { AnyParsedSchemaDefinition, ParsedSchemaDefinition, TypeFromSchema } fro
 import { parseValidationError, ValidationCustomMessage } from './applyValidator';
 import { parseSchemaFields } from './getSchemaErrors';
 import { parseSchemaDefinition } from './parseSchemaDefinition';
-import type { ObjectTypeComposer } from 'graphql-compose';
-import { isBrowser } from '@darch/utils/lib/isBrowser';
-import { GraphQLInputObjectType, GraphQLObjectType } from 'graphql';
 
 export { RuntimeError } from '@darch/utils/lib/RuntimeError';
 export * from './parseSchemaDefinition';
@@ -170,38 +167,38 @@ export class Schema<DefinitionInput extends SchemaDefinitionInput> {
 
   static register = new StrictMap();
 
-  private _otc: ObjectTypeComposer | undefined;
-  otc = (): ObjectTypeComposer => {
-    if (this._otc) return this._otc;
-    if (isBrowser() || typeof module?.require !== 'function') {
-      throw new Error('GraphQL transformation is not available on browser.');
-    }
-
-    if (!this.id) {
-      throw new Error(
-        'Should schema.identify() before converting to Graphql.' +
-          '\nYou can call schema.clone() to choose a different identification.'
-      );
-    }
-
-    const { schemaToGQL } = module
-      // preventing build tools transforming require calls
-      .require('./schemaToGQL');
-    //
-    return (this._otc = schemaToGQL(this.id, this.definition));
-  };
-
-  private _graphqlType: GraphQLObjectType | undefined;
-  graphqlType = (): any => {
-    if (this._graphqlType) return this._graphqlType;
-    return (this._graphqlType = this.otc().getType());
-  };
-
-  private _graphqlInputType: GraphQLInputObjectType | undefined;
-  graphqlInputType = (): any => {
-    if (this._graphqlInputType) return this._graphqlInputType;
-    return (this._graphqlInputType = this.otc().getInputType());
-  };
+  // private _otc: ObjectTypeComposer | undefined;
+  // otc = (): ObjectTypeComposer => {
+  //   if (this._otc) return this._otc;
+  //   if (isBrowser() || typeof module?.require !== 'function') {
+  //     throw new Error('GraphQL transformation is not available on browser.');
+  //   }
+  //
+  //   if (!this.id) {
+  //     throw new Error(
+  //       'Should schema.identify() before converting to Graphql.' +
+  //         '\nYou can call schema.clone() to choose a different identification.'
+  //     );
+  //   }
+  //
+  //   const { schemaToGQL } = module
+  //     // preventing build tools transforming require calls
+  //     .require('./schemaToGQL');
+  //   //
+  //   return (this._otc = schemaToGQL(this.id, this.definition));
+  // };
+  //
+  // private _graphqlType: GraphQLObjectType | undefined;
+  // graphqlType = (): any => {
+  //   if (this._graphqlType) return this._graphqlType;
+  //   return (this._graphqlType = this.otc().getType());
+  // };
+  //
+  // private _graphqlInputType: GraphQLInputObjectType | undefined;
+  // graphqlInputType = (): any => {
+  //   if (this._graphqlInputType) return this._graphqlInputType;
+  //   return (this._graphqlInputType = this.otc().getInputType());
+  // };
 }
 
 export const DarchSchema = Schema;
