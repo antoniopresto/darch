@@ -1,6 +1,6 @@
-import {FieldDefinitions, FieldTypeName, InferFieldType,} from './_fieldDefinitions';
-import {NullableToPartial} from '@darch/utils/dist/typeUtils';
-import {SchemaLike} from "./ISchemaLike";
+import { FieldDefinitions, FieldTypeName, TCursor } from './_fieldDefinitions';
+import { NullableToPartial } from '@darch/utils/dist/typeUtils';
+import { SchemaLike } from './ISchemaLike';
 
 export type SchemaFieldInput =
   | SchemaLike
@@ -151,8 +151,25 @@ type _injectInfer<T> = T extends { __infer: {} }
             : never
           : //
 
+          // === parsing record type ===
+          T['type'] extends 'record'
+          ? [Def] extends [undefined]
+            ? { [K: string]: any }
+            : Def extends { keyType: 'int' | 'float' }
+            ? {
+                [K: number]: Def extends { type: infer Type }
+                  ? InferField<Type>
+                  : any;
+              }
+            : {
+                [K: string]: Def extends { type: infer Type }
+                  ? InferField<Type>
+                  : any;
+              }
+          : //
+
             // === simple field case
-            InferFieldType<T['type'], Def>
+            _inferBasic<T['type'], Def>
         : // end infer
           T[Exclude<K, '__infer'>];
     }
@@ -200,13 +217,15 @@ type ExtractFlattenDefType<Input> = keyof Input extends infer K
     : never
   : never;
 
-type ExtractFlattenDefCommonConfig<Input extends Record<string, any>> = {
-  list: [Input['list']] extends [true] ? true : false;
-  optional: [Input['optional']] extends [true] ? true : false;
-  description: [Input['description']] extends ['string']
-    ? Input['description']
-    : undefined;
-};
+type ExtractFlattenDefCommonConfig<Input> = Input extends { [K: string]: any }
+  ? {
+      list: [Input['list']] extends [true] ? true : false;
+      optional: [Input['optional']] extends [true] ? true : false;
+      description: [Input['description']] extends ['string']
+        ? Input['description']
+        : undefined;
+    }
+  : never;
 
 type ParseFieldAsKey<Base> =
   //
@@ -271,3 +290,38 @@ type ParseStringDefinition<S> =
       }
     : never;
 // ==== start FieldAsString utils ====
+
+type _inferBasic<Type, Def = undefined> =
+  //
+  Type extends 'any'
+    ? any
+    : Type extends 'boolean'
+    ? boolean
+    : Type extends 'cursor'
+    ? TCursor
+    : Type extends 'null'
+    ? null
+    : Type extends 'undefined'
+    ? undefined
+    : Type extends 'unknown'
+    ? unknown
+    : Type extends 'string'
+    ? string
+    : Type extends 'date'
+    ? Date
+    : Type extends 'email'
+    ? string
+    : Type extends 'float'
+    ? number
+    : Type extends 'int'
+    ? number
+    : Type extends 'ulid'
+    ? string
+    : //
+
+    // == parsing enum
+    Type extends 'enum'
+    ? Def extends Array<infer Val> | Readonly<Array<infer Val>>
+      ? Val
+      : never
+    : never;

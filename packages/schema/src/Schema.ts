@@ -108,7 +108,7 @@ export class Schema<DefinitionInput extends SchemaDefinitionInput> {
     ...descriptions:
       | [comment: string]
       | [{ [K in keyof DefinitionInput]?: string }]
-  ): this {
+  ): Schema<DefinitionInput> {
     if (descriptions.length === 1 && typeof descriptions[0] === 'string') {
       this._description = descriptions[0];
       return this;
@@ -198,7 +198,7 @@ export const DarchSchema = Schema;
 
 export function createSchema<
   DefinitionInput extends Readonly<SchemaDefinitionInput>
->(fields: DefinitionInput): Schema<DefinitionInput> {
+>(fields: Readonly<DefinitionInput>): Schema<DefinitionInput> {
   return new Schema<DefinitionInput>(fields);
 }
 

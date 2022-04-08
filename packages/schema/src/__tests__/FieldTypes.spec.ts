@@ -12,7 +12,7 @@ import { RecordField } from '../fields/RecordField';
 import { StringField } from '../fields/StringField';
 import { ULID_REGEX, UlidField } from '../fields/UlidField';
 import { UnknownField } from '../fields/UnknownField';
-import { createSchema } from '../index';
+import { createSchema, Schema } from '../index';
 import { fieldToGraphql, schemaToGQL } from '../schemaToGQL';
 import { schemaToTypescript } from '../schemaToTypescript';
 import { Infer } from '../Infer';
@@ -458,7 +458,9 @@ describe('FieldTypes', () => {
           type: 'record',
           def: {
             keyType: 'int',
-            type: 'boolean',
+            type: {
+              record: { type: { schema: { name: ['string', '[int]?'] } } },
+            },
           },
           optional: true,
           list: true,
@@ -479,7 +481,7 @@ describe('FieldTypes', () => {
       );
 
       type AnyRecord = Record<string, any>;
-      type T = Infer<typeof def>;
+      type T = Infer<Schema<typeof def>>;
 
       assert<
         IsExact<
@@ -490,7 +492,13 @@ describe('FieldTypes', () => {
             nameList: AnyRecord[];
             nameListOptional?: AnyRecord[] | undefined;
             nameFromType?: Record<string, number[] | undefined>[] | undefined;
-            defObject?: Record<number, boolean>[] | undefined;
+            defObject?:
+              | {
+                  [K: number]: {
+                    [K: string]: { name?: string | number[] | undefined };
+                  };
+                }[]
+              | undefined;
           }
         >
       >(true);
@@ -790,7 +798,7 @@ describe('FieldTypes', () => {
           T,
           {
             name: unknown;
-            nameOpt?: unknown | undefined; // FIXME should infer as optional
+            nameOpt: unknown; // FIXME should infer as optional
             nameList: unknown[];
             nameListOptional?: unknown[] | undefined;
             nameFromType?: unknown[] | undefined;

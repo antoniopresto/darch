@@ -1,6 +1,6 @@
-import { SchemaFieldInput} from './_parseFields';
+import { SchemaFieldInput } from './_parseFields';
 import { RecordFieldDef } from './RecordField';
-import {SchemaLike} from "./ISchemaLike";
+import { SchemaLike } from './ISchemaLike';
 
 export type TCursor = {
   pk: string;
@@ -76,57 +76,5 @@ export type FieldDefinitions = {
 
   enum: Array<string> | Readonly<Array<string>>;
 };
-
-export type InferFieldType<Type, Def = undefined> =
-  //
-  Type extends 'any'
-    ? any
-    : Type extends 'boolean'
-    ? boolean
-    : Type extends 'cursor'
-    ? TCursor
-    : Type extends 'null'
-    ? null
-    : Type extends 'undefined'
-    ? undefined
-    : Type extends 'unknown'
-    ? unknown
-    : Type extends 'string'
-    ? string
-    : Type extends 'date'
-    ? Date
-    : Type extends 'email'
-    ? string
-    : Type extends 'float'
-    ? number
-    : Type extends 'int'
-    ? number
-    : Type extends 'ulid'
-    ? string
-    : //
-
-    // === parsing record type ===
-    Type extends 'record'
-    ? [Def] extends [undefined]
-      ? { [K: string]: any }
-      : Def extends { keyType: 'int' | 'float' }
-      ? {
-          [K: number]: Def extends { type: { __infer: infer Infer } }
-            ? Infer
-            : any;
-        }
-      : {
-          [K: string]: Def extends { type: { __infer: infer Infer } }
-            ? Infer
-            : any;
-        }
-    : //
-
-    // == parsing enum
-    Type extends 'enum'
-    ? Def extends Array<infer Val> | Readonly<Array<infer Val>>
-      ? Val
-      : never
-    : never;
 
 export type FieldTypeName = Extract<keyof FieldDefinitions, string>;
