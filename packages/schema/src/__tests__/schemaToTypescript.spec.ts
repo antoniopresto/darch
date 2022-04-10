@@ -10,7 +10,7 @@ describe('schemaToTypescript', () => {
       bool: 'boolean?',
       ulids: '[ulid]?',
       dates: '[date]',
-      sex: [{ enum: ['m', 'f', 'o'] } /*TODO undefined*/],
+      sex: [{ enum: ['m', 'f', 'o'], optional: true }],
       addresses: [
         {
           schema: {

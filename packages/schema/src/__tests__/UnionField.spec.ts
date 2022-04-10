@@ -1,4 +1,4 @@
-import { RuntimeError } from '@darch/utils/dist/RuntimeError';
+import { RuntimeError } from '@darch/utils/lib/RuntimeError';
 import { assert, IsExact } from 'conditional-type-checks';
 import { UnionField } from '../fields/UnionField';
 import { Infer } from '../Infer';

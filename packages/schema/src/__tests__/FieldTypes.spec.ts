@@ -1,4 +1,4 @@
-import { RuntimeError } from '@darch/utils/dist/RuntimeError';
+import { RuntimeError } from '@darch/utils/lib/RuntimeError';
 import { assert, IsExact } from 'conditional-type-checks';
 
 import { BooleanField } from '../fields/BooleanField';

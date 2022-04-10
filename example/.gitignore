@@ -67,7 +67,7 @@ buck-out/
 android/app/libs
 android/keystores/debug.keystore
 
-dist/
+lib/
 webpack-assets.json
 webpack-stats.json
 *.swp

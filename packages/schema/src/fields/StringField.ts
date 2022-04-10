@@ -1,4 +1,4 @@
-import { expectedType } from '@darch/utils/dist/expectedType';
+import { expectedType } from '@darch/utils/lib/expectedType';
 
 import { FieldType, FieldTypeParser } from '../FieldType';
 

@@ -1,8 +1,8 @@
-import { RuntimeError } from '@darch/utils/dist/RuntimeError';
-import { getKeys } from '@darch/utils/dist/getKeys';
-import { getTypeName } from '@darch/utils/dist/getTypeName';
-import { inspectObject } from '@darch/utils/dist/inspectObject';
-import { simpleObjectClone } from '@darch/utils/dist/simpleObjectClone';
+import { RuntimeError } from '@darch/utils/lib/RuntimeError';
+import { getKeys } from '@darch/utils/lib/getKeys';
+import { getTypeName } from '@darch/utils/lib/getTypeName';
+import { inspectObject } from '@darch/utils/lib/inspectObject';
+import { simpleObjectClone } from '@darch/utils/lib/simpleObjectClone';
 
 import { isFieldInstance, TAnyFieldType } from './FieldType';
 import { isSchema, Schema } from './Schema';
@@ -17,7 +17,7 @@ import {
 } from './parseStringDefinition';
 
 import { FinalFieldDefinition } from './fields/_parseFields';
-import { isProduction } from '@darch/utils/dist/env';
+import { isProduction } from '@darch/utils/lib/env';
 
 export function parseSchemaField<T extends FieldDefinitionConfig>(
   fieldName: string,

@@ -1,4 +1,4 @@
-import { RuntimeError } from '@darch/utils/dist/RuntimeError';
+import { RuntimeError } from '@darch/utils/lib/RuntimeError';
 
 export type ValidationCustomMessage = string | ((value: any, originalError: Error) => string | Error);
 export type FieldTypeParser<Type> = (input: any, customMessage?: ValidationCustomMessage) => Type;

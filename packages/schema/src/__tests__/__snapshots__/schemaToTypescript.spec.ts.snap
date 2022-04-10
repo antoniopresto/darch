@@ -20,7 +20,7 @@ export interface MySchema {
   bool?: boolean;
   ulids?: Ulid[];
   dates: Date[];
-  sex: \\"m\\" | \\"f\\" | \\"o\\";
+  sex?: \\"m\\" | \\"f\\" | \\"o\\";
   addresses?:
     | {
         kind: \\"home\\";

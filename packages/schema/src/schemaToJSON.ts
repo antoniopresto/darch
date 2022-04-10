@@ -1,7 +1,7 @@
-import { RuntimeError } from '@darch/utils/dist/RuntimeError';
-import { expectedType } from '@darch/utils/dist/expectedType';
-import { getKeys } from '@darch/utils/dist/getKeys';
-import { invariantType } from '@darch/utils/dist/invariant';
+import { RuntimeError } from '@darch/utils/lib/RuntimeError';
+import { expectedType } from '@darch/utils/lib/expectedType';
+import { getKeys } from '@darch/utils/lib/getKeys';
+import { invariantType } from '@darch/utils/lib/invariant';
 import { JSONSchema4 } from 'json-schema';
 
 import { isSchema } from './Schema';

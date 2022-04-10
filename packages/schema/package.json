@@ -1,12 +1,13 @@
 {
   "name": "@darch/schema",
   "version": "1.0.34",
-  "main": "dist/index.js",
+  "main": "lib/index.js",
+  "module": "lib/module/index.js",
   "author": "antoniopresto <antoniopresto@gmail.com>",
   "license": "MIT",
   "scripts": {
     "test": "jest",
-    "build": "rm -rf dist && tsc",
+    "build": "rm -rf lib && tsc && tsc -p tsconfig.module.json",
     "prepublish": "npm run build && npm run test",
     "fix": "run-s fix:*",
     "fix:prettier": "prettier \"src/**/*.ts\" --write",
@@ -56,6 +57,6 @@
   },
   "files": [
     "package.json",
-    "dist/*"
+    "lib/*"
   ]
 }

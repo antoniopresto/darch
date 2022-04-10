@@ -1,5 +1,5 @@
-import { expectedType } from '@darch/utils/dist/expectedType';
-import { inspectObject } from '@darch/utils/dist/inspectObject';
+import { expectedType } from '@darch/utils/lib/expectedType';
+import { inspectObject } from '@darch/utils/lib/inspectObject';
 
 import { FieldType, FieldTypeParser, TAnyFieldType } from '../FieldType';
 import type { FieldDefinitionConfig } from '../TSchemaConfig';

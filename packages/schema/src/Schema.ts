@@ -1,10 +1,10 @@
-import { RuntimeError } from '@darch/utils/dist/RuntimeError';
-import { StrictMap } from '@darch/utils/dist/StrictMap';
-import { expectedType } from '@darch/utils/dist/expectedType';
-import { getTypeName } from '@darch/utils/dist/getTypeName';
-import { invariantType } from '@darch/utils/dist/invariant';
-import { simpleObjectClone } from '@darch/utils/dist/simpleObjectClone';
-import { ForceString } from '@darch/utils/dist/typeUtils';
+import { RuntimeError } from '@darch/utils/lib/RuntimeError';
+import { StrictMap } from '@darch/utils/lib/StrictMap';
+import { expectedType } from '@darch/utils/lib/expectedType';
+import { getTypeName } from '@darch/utils/lib/getTypeName';
+import { invariantType } from '@darch/utils/lib/invariant';
+import { simpleObjectClone } from '@darch/utils/lib/simpleObjectClone';
+import { ForceString } from '@darch/utils/lib/typeUtils';
 
 import { SchemaDefinitionInput } from './TSchemaConfig';
 

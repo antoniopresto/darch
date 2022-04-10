@@ -11,7 +11,7 @@ esbuild.buildSync({
   target: 'node14',
   write: true,
   platform: 'node',
-  outdir: nodePath.resolve(CWD, 'dist'),
+  outdir: nodePath.resolve(CWD, 'lib'),
   format: 'cjs',
   bundle: false,
   sourcemap: 'external',

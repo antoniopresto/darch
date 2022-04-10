@@ -1,4 +1,4 @@
-import { RuntimeError } from '@darch/utils/dist/RuntimeError';
+import { RuntimeError } from '@darch/utils/lib/RuntimeError';
 
 import { fieldTypeConstructors } from './fields/fieldTypes';
 import { FinalFieldDefinition } from './fields/_parseFields';

@@ -1,8 +1,10 @@
 import { RuntimeError } from './RuntimeError';
 
-export class StrictMap<K, V> extends Map<K, V> {
+export class StrictMap<K, V> {
+  nativeMap: Map<K, V>;
+
   constructor() {
-    super();
+    this.nativeMap = new Map<K, V>();
   }
 
   ensure(key: K) {
@@ -10,13 +12,13 @@ export class StrictMap<K, V> extends Map<K, V> {
   }
 
   get(key): NonNullable<V> {
-    if (!this.has(key)) {
+    if (!this.nativeMap.has(key)) {
       throw new StrictMapError(`There is no item with key "${key}"`, {
-        validKeys: [...super.keys()],
+        validKeys: [...this.nativeMap.keys()],
       });
     }
 
-    const value = super.get(key);
+    const value = this.nativeMap.get(key);
 
     if (value === undefined || value === null) {
       throw new StrictMapError(
@@ -24,12 +26,44 @@ export class StrictMap<K, V> extends Map<K, V> {
           value === null ? 'null' : 'undefined'
         }.`,
         {
-          validKeys: [...super.keys()],
+          validKeys: [...this.nativeMap.keys()],
         }
       );
     }
 
     return value as NonNullable<V>;
+  }
+
+  set = (key: K, value: V) => {
+    return this.nativeMap.set(key, value);
+  };
+
+  has = (key: any) => {
+    return this.nativeMap.has(key);
+  };
+
+  keys = () => {
+    return this.nativeMap.keys();
+  };
+
+  entries = () => {
+    return this.nativeMap.entries();
+  };
+
+  clear = () => {
+    return this.nativeMap.clear();
+  };
+
+  delete = (key: K) => {
+    return this.nativeMap.delete(key);
+  };
+
+  values = () => {
+    return this.nativeMap.values();
+  };
+
+  get size() {
+    return this.nativeMap.size;
   }
 }
 

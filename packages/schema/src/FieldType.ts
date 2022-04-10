@@ -1,6 +1,6 @@
-import { expectedType } from '@darch/utils/dist/expectedType';
-import { getTypeName } from '@darch/utils/dist/getTypeName';
-import { upperFirst } from '@darch/utils/dist/upperFirst';
+import { expectedType } from '@darch/utils/lib/expectedType';
+import { getTypeName } from '@darch/utils/lib/getTypeName';
+import { upperFirst } from '@darch/utils/lib/upperFirst';
 
 import {
   FieldTypeParser,

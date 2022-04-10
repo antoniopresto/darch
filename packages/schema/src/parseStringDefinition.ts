@@ -1,4 +1,4 @@
-import { memo } from '@darch/utils/dist/memo';
+import { memo } from '@darch/utils/lib/memo';
 
 import { isFieldTypeName } from './fields/fieldTypes';
 import { FinalFieldDefinition } from './fields/_parseFields';

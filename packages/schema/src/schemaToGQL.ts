@@ -1,5 +1,5 @@
-import { RuntimeError } from '@darch/utils/dist/RuntimeError';
-import { getKeys } from '@darch/utils/dist/getKeys';
+import { RuntimeError } from '@darch/utils/lib/RuntimeError';
+import { getKeys } from '@darch/utils/lib/getKeys';
 
 import {
   camelCase,

@@ -115,7 +115,7 @@ npm install @darch/schema
 ### schemaToTypescript
 Returns a string of an interface representing a DarchSchema;
 ``` ts
-import { schemaToTypescript } from '@darch/schema/dist/schemaToTypescript';
+import { schemaToTypescript } from '@darch/schema/lib/schemaToTypescript';
 
 const interfaceTxt = await schemaToTypescript('User', userSchema);
 
@@ -150,7 +150,7 @@ export interface User {
 Receives a DarchSchema and returns a [json-schema](https://json-schema.org/)
 
 ``` ts
-  import { schemaToJSON } from '@darch/schema/dist/schemaToJSON';
+  import { schemaToJSON } from '@darch/schema/lib/schemaToJSON';
 
   const jsonSchema = schemaToJSON('User', userSchema);
 
