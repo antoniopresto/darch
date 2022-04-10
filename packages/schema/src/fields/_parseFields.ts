@@ -33,11 +33,11 @@ export type FinalSchemaDefinition = { [K: string]: FinalFieldDefinition };
 export type FinalFieldDefinition = {
   [K in FieldTypeName]: {
     type: K;
-    def?: any; // TODO can infer or will go infinite looping
+    def?: any;
     list?: boolean;
     optional?: boolean;
     description?: string;
-    __infer?: unknown;
+    __infer?: any;
   };
 }[FieldTypeName];
 
@@ -93,9 +93,9 @@ export type ToFinalField<Base> =
           Base extends Array<infer Item> | Readonly<Array<infer Item>>
           ? {
               type: 'union';
-              def: Array<Base[number]>;
-              list: Item extends { list: true } ? true : undefined;
-              optional: Item extends { optional: true } ? true : undefined;
+              def: Array<Item>;
+              list: undefined;
+              optional: undefined;
               description: string | undefined;
             }
           : // === end handling union type
@@ -114,13 +114,13 @@ export type ToFinalField<Base> =
           ? {
               type: Base['type'];
               def: Def;
-              list: Base extends { list: true } ? true : undefined;
-              optional: Base extends { optional: true } ? true : undefined;
+              list: [Base['list']] extends [true] ? true : undefined;
+              optional: [Base['optional']] extends [true] ? true : undefined;
               description: string | undefined;
             }
           : // ==== start handling FieldAsTypeKey ====
             {
-              [K in keyof ParseFieldAsKey<Base>]: ParseFieldAsKey<Base>[K];
+              [K in keyof ParseFlattenFieldDef<Base>]: ParseFlattenFieldDef<Base>[K];
             }
       >
     >
@@ -147,7 +147,7 @@ type _injectInfer<T> = T extends { __infer: {} }
           // === recursive union case ===
           T['type'] extends 'union'
           ? Def extends Array<infer Item> | Readonly<Array<infer Item>>
-            ? GetI<ToFinalField<Item>>
+            ? InferField<Item>
             : never
           : //
 
@@ -203,13 +203,15 @@ type _handleOptional<T> = T extends {
 // === END ParseField == //
 
 // ==== start parsing FieldAsTypeKey utils ====
-type ExtractFlattenDefDef<Input> = Input extends {
-  [K in keyof Input as K extends FieldTypeName ? K : never]: infer Def;
-}
-  ? [keyof Def] extends [never]
-    ? { def: undefined }
-    : { def: Def }
-  : never;
+type ExtractFlattenDefDef<Input> = {
+  def: {
+    -readonly [K in keyof Input as K extends FieldTypeName
+      ? K
+      : never]: Input[K];
+  } extends infer P1
+    ? P1[keyof P1]
+    : Input;
+};
 
 type ExtractFlattenDefType<Input> = keyof Input extends infer K
   ? K extends FieldTypeName
@@ -227,7 +229,7 @@ type ExtractFlattenDefCommonConfig<Input> = Input extends { [K: string]: any }
     }
   : never;
 
-type ParseFieldAsKey<Base> =
+type ParseFlattenFieldDef<Base> =
   //
   ExtractFlattenDefType<Base> &
     ExtractFlattenDefDef<Base> &

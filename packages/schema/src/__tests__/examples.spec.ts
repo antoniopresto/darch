@@ -1,13 +1,12 @@
 import { createSchema } from '../Schema';
-import { assert, IsExact } from 'conditional-type-checks';
 import { schemaToTypescript } from '../schemaToTypescript';
 import { schemaToJSON } from '../schemaToJSON';
+import { _assertFields } from '../fields/__tests__/__assert';
 
 test('examples', async () => {
   const addressSchema = createSchema({
     street: 'string',
-    number: 'int?',
-    union: ['string', '[int]?'],
+    number: ['string', 'int?'],
   });
 
   const userSchema = createSchema(
@@ -64,30 +63,28 @@ test('examples', async () => {
 
   type InferType = typeof parsed;
 
-  assert<
-    IsExact<
-      InferType,
-      {
-        name: string;
-        email?: string | undefined;
-        age?: number | undefined;
-        notes?: number[] | undefined;
-        unionField?: string | number[] | undefined;
-        letter: 'a' | 'b' | 'c';
-        letterOptionalList?: ('x' | 'y' | 'z')[] | undefined;
-        optionalAddress?:
-          | {
-              street: string;
-              number?: number | undefined;
-            }
-          | undefined;
+  _assertFields<
+    InferType,
+    {
+      name: string;
+      email?: string | undefined;
+      age?: number | undefined;
+      notes?: number[] | undefined;
+      unionField?: string | number[] | undefined;
+      letter: 'a' | 'b' | 'c';
+      letterOptionalList?: ('x' | 'y' | 'z')[] | undefined;
+      optionalAddress?:
+        | {
+            street: string;
+            number?: string | number | undefined;
+          }
+        | undefined;
 
-        deliveryAddress: {
-          street: string;
-          number?: number | undefined;
-        };
-      }
-    >
+      deliveryAddress: {
+        street: string;
+        number?: number | undefined;
+      };
+    }
   >(true);
 
   const interfaceTxt = await schemaToTypescript('User', userSchema);

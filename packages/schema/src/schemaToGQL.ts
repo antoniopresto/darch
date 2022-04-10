@@ -7,7 +7,7 @@ import {
   upperFirst,
 } from 'graphql-compose';
 
-import { TAnyFieldType } from './FieldType';
+import { FieldType, TAnyFieldType } from './FieldType';
 import { SchemaDefinitionInput } from './TSchemaConfig';
 import { fieldTypeConstructors } from './fields/fieldTypes';
 import { parseSchemaDefinition } from './parseSchemaDefinition';
@@ -66,7 +66,9 @@ export function fieldToGraphql(params: {
     try {
       const def: any = field.def;
 
-      const typeConstructor = fieldTypeConstructors[field.type];
+      const typeConstructor = fieldTypeConstructors[
+        field.type
+      ] as typeof FieldType;
 
       if (!typeConstructor?.create) {
         throw new RuntimeError(

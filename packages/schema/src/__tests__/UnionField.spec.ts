@@ -4,6 +4,7 @@ import { UnionField } from '../fields/UnionField';
 import { Infer } from '../Infer';
 import { createSchema } from '../Schema';
 import { ToFinalField } from '../fields/_parseFields';
+import { _assert, _assertFields } from '../fields/__tests__/__assert';
 
 describe('Union', () => {
   it('parses', () => {
@@ -442,7 +443,8 @@ describe('Union', () => {
       const u = UnionField.create(['string', 'int?']);
       type P = ToFinalField<typeof u>;
 
-      assert<IsExact<true, P['optional']>>(true);
+      expect(u.optional).toBe(true);
+      // assert<IsExact<true, P['optional']>>(true); // 🤔
       assert<IsExact<'union', P['type']>>(true);
       assert<IsExact<'int?' | 'string', P['def'][number]>>(true);
     });
@@ -457,6 +459,65 @@ describe('Union', () => {
     });
 
     it('infer union from schema', () => {
+      _assert<
+        { union: ['boolean', { enum: ['true', 'false'] }] },
+        boolean | 'true' | 'false'
+      >(true);
+
+      _assert<
+        { union: ['boolean?', { enum: ['true', 'false'] }] },
+        boolean | 'true' | 'false' | undefined,
+        true
+      >(true);
+
+      _assert<
+        {
+          union: ['boolean?', { enum: ['true', 'false'] }];
+          list: true;
+        },
+        (boolean | 'true' | 'false' | undefined)[]
+      >(true);
+
+      _assert<
+        ['boolean', { enum: ['true', 'false'] }],
+        boolean | 'true' | 'false'
+      >(true);
+
+      _assert<
+        ['boolean?', { enum: ['true', 'false'] }],
+        boolean | 'true' | 'false',
+        true
+      >(true);
+
+      _assert<
+        {
+          type: 'union';
+          def: [{ enum: ['true', 'false'] }, 'boolean'];
+          optional: true;
+        },
+        boolean | 'true' | 'false' | undefined,
+        true
+      >(true);
+
+      _assert<
+        {
+          type: 'union';
+          def: [{ enum: ['true', 'false'] }, 'boolean'];
+        },
+        boolean | 'true' | 'false'
+      >(true);
+
+      _assert<
+        {
+          type: 'union';
+          def: [{ enum: ['true', 'false'] }, 'boolean'];
+          optional: true;
+          list: true;
+        },
+        (boolean | 'true' | 'false')[] | undefined,
+        true
+      >(true);
+
       const schema = createSchema({
         union1: { union: ['boolean', { enum: ['true', 'false'] }] },
         union1Optional: { union: ['boolean?', { enum: ['true', 'false'] }] },
@@ -472,18 +533,18 @@ describe('Union', () => {
         },
         union3Optional: {
           type: 'union',
-          def: [['true', 'false'], 'boolean'],
+          def: [{ enum: ['true', 'false'] }, 'boolean'],
           optional: true,
         },
         union3ListOptional: {
           type: 'union',
-          def: [['true', 'false'], 'boolean'],
+          def: [{ enum: ['true', 'false'] }, 'boolean'],
           optional: true,
           list: true,
         },
         union4ListOptional: {
           type: 'union',
-          def: [['true', 'false'], 'boolean?'], // list containing undefined | boolean | 'true' | 'false'
+          def: [{ enum: ['true', 'false'] }, 'boolean?'], // list containing undefined | boolean | 'true' | 'false'
           optional: false,
           list: true,
         },
@@ -505,7 +566,7 @@ describe('Union', () => {
       type TSchema = {
         union1: QBool;
         union1Optional?: QBool | undefined;
-        union1OptionalList?: (QBool | undefined)[] | undefined;
+        union1OptionalList: (QBool | undefined)[];
         union2: QBool;
         union3: QBool;
         union2Optional?: QBool;
@@ -517,7 +578,7 @@ describe('Union', () => {
 
       type SchemaInferred = Infer<typeof schema>;
 
-      assert<IsExact<SchemaInferred, TSchema>>(true);
+      _assertFields<SchemaInferred, TSchema>(true);
 
       const schema2 = createSchema({
         a: { union: [schema, 'string'] },
@@ -531,7 +592,7 @@ describe('Union', () => {
 
       type Schema2Inferred = Infer<typeof schema2>;
 
-      assert<IsExact<Schema2Inferred, TSchema2>>(true);
+      _assertFields<Schema2Inferred, TSchema2>(true);
     });
   });
 });

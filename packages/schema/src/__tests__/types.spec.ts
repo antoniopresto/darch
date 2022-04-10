@@ -4,6 +4,7 @@ import { createSchema, Schema } from '../Schema';
 import { EnumField } from '../fields/EnumField';
 import { ParseStringDefinition } from '../parseStringDefinition';
 import { Infer } from '../Infer';
+import { _assertFields } from '../fields/__tests__/__assert';
 
 describe('typings', () => {
   test('enum', () => {
@@ -35,7 +36,7 @@ describe('typings', () => {
       nameListOptional: '[string]?',
       optional: 'string?',
       age: 'int',
-      gender: { enum: ['male', 'female', 'other'] },
+      gender: { enum: ['male', 'female', 'other'], optional: true },
       category: { enum: ['general', 'closed'] },
       categoryRO: { enum: ['general', 'closed'] } as const,
       '12Enum': { enum: ['1', '2'] },
@@ -70,7 +71,7 @@ describe('typings', () => {
       }[];
     };
 
-    assert<IsExact<T, Expected>>(true);
+    _assertFields<T, Expected>(true);
   });
 
   test('schema as type', () => {
