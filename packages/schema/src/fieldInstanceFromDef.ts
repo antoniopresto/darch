@@ -7,7 +7,7 @@ import { FieldType, TAnyFieldType } from './FieldType';
 export function fieldInstanceFromDef(
   definition: FinalFieldDefinition
 ): TAnyFieldType {
-  if (!fieldTypeConstructors.hasOwnProperty(definition.type)) {
+  if (!fieldTypeConstructors[definition.type]) {
     throw new RuntimeError(
       `invalid field definition. fieldTypeConstructors["${definition?.type}"] is undefined`,
       {

@@ -6,7 +6,7 @@ import { simpleObjectClone } from '@darch/utils/dist/simpleObjectClone';
 
 import { isFieldInstance, TAnyFieldType } from './FieldType';
 import { isSchema, Schema } from './Schema';
-import { FieldDefinitionConfig } from './TSchemaConfig';
+import { FieldDefinitionConfig, SchemaDefinitionInput } from './TSchemaConfig';
 import { fieldInstanceFromDef } from './fieldInstanceFromDef';
 
 import { fieldTypeConstructors } from './fields/fieldTypes';
@@ -17,6 +17,7 @@ import {
 } from './parseStringDefinition';
 
 import { FinalFieldDefinition } from './fields/_parseFields';
+import { isProduction } from '@darch/utils/dist/env';
 
 export function parseSchemaField<T extends FieldDefinitionConfig>(
   fieldName: string,
@@ -71,20 +72,24 @@ export function parseFieldDefinitionConfig(
       if (typeof definition.def !== 'object' || !definition.def) {
         throw new RuntimeError(`Missing def for schema field.`, { definition });
       }
+
       if (isSchema(definition.def)) {
-        throw new RuntimeError(
-          `Def should be a schema definition, not a schema.`,
-          {
-            definition,
-          }
-        );
+        definition.def = definition.def.definition;
+      } else {
+        definition.def = parseSchemaDefinition(definition.def);
       }
     }
 
     if (definition.type === 'union') {
-      definition.def = definition.def.map((el) =>
-        parseFieldDefinitionConfig(el)
-      );
+      let isOptionalUnion = definition.optional;
+
+      definition.def = definition.def.map((el) => {
+        const parsed = parseFieldDefinitionConfig(el);
+        if (parsed.optional) isOptionalUnion = true;
+        return parsed;
+      });
+
+      definition.optional = isOptionalUnion;
     }
 
     return {
@@ -97,7 +102,7 @@ export function parseFieldDefinitionConfig(
   }
 
   if (isUnionDefArray(definition)) {
-    const def = definition[0].map((el) => parseFieldDefinitionConfig(el));
+    const def = definition.map((el) => parseFieldDefinitionConfig(el));
     const hasOptionalInDef = def.some((el) => el?.optional === true);
 
     return {
@@ -119,6 +124,10 @@ export function parseFieldDefinitionConfig(
 
   // deprecated
   if (isSchemaAsTypeDefinition(definition)) {
+    console.warn(
+      `Using schema as type -> { type: Schema<any> ...} - is deprecated.`
+    );
+
     return {
       type: 'schema',
       def: definition.type.definition,
@@ -135,7 +144,9 @@ export function parseFieldDefinitionConfig(
   throw new Error(`Unexpected field definition: ${inspectObject(definition)}`);
 }
 
-export function parseSchemaDefinition<T>(input: T): FinalFieldDefinition {
+export function parseSchemaDefinition<T extends SchemaDefinitionInput>(
+  input: T
+): FinalFieldDefinition {
   const result = {} as FinalFieldDefinition;
 
   getKeys(input).forEach(function (fieldName) {
@@ -144,12 +155,14 @@ export function parseSchemaDefinition<T>(input: T): FinalFieldDefinition {
         fieldName,
         (input as any)[fieldName]
       );
-    } catch (err) {
-      throw new RuntimeError(`failed to process schema`, {
-        fieldName,
-        input,
-        err,
-      });
+    } catch (err: any) {
+      throw new RuntimeError(
+        `Failed to process schema field "${fieldName}":\n${err.message}`,
+        {
+          err,
+          input,
+        }
+      );
     }
   });
 
@@ -161,7 +174,22 @@ function isFinalFieldDefinition(input: any): input is FinalFieldDefinition {
 }
 
 function isUnionDefArray(input: any): input is [FieldDefinitionConfig[]] {
-  return Array.isArray(input);
+  if (!Array.isArray(input)) return false;
+
+  if (!isProduction()) {
+    // verify against wrong enum definition
+    input.forEach((el) => {
+      if (typeof el === 'string' && !isStringFieldDefinition(el)) {
+        throw new Error(
+          `Plain array is used only for union definitions.\n` +
+            `  "${el}" is not valid as union item.\n` +
+            `  You can use { enum: ['${el}'] } instead of ['${el}'].`
+        );
+      }
+    });
+  }
+
+  return true;
 }
 
 /**

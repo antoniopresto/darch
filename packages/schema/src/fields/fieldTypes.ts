@@ -1,28 +1,31 @@
-import {memoize} from '@darch/utils/dist/memoize';
+import { memoize } from '@darch/utils/dist/memoize';
 
-import {AnyField} from './AnyField';
-import {BooleanField} from './BooleanField';
-import {CursorField} from './CursorField';
-import {DateField} from './DateField';
-import {EmailField} from './EmailField';
-import {EnumField} from './EnumField';
-import {FloatField} from './FloatField';
-import {IntField} from './IntField';
-import {RecordField} from './RecordField';
-import {StringField} from './StringField';
-import {SubSchemaField} from './SubSchema';
-import {UlidField} from './UlidField';
-import {UndefinedField} from './UndefinedField';
-import {UnionField} from './UnionField';
-import {UnknownField} from './UnknownField';
+import { AnyField } from './AnyField';
+import { BooleanField } from './BooleanField';
+import { CursorField } from './CursorField';
+import { DateField } from './DateField';
+import { EmailField } from './EmailField';
+import { EnumField } from './EnumField';
+import { FloatField } from './FloatField';
+import { IntField } from './IntField';
+import { RecordField } from './RecordField';
+import { StringField } from './StringField';
+import { SubSchemaField } from './SubSchema';
+import { UlidField } from './UlidField';
+import { UndefinedField } from './UndefinedField';
+import { UnionField } from './UnionField';
+import { UnknownField } from './UnknownField';
 
-import {NullField} from './NullField';
-import {FieldTypeName} from "./_fieldDefinitions";
+import { NullField } from './NullField';
+import { FieldTypeName } from './_fieldDefinitions';
 
 function createConstructors<T extends { [K in FieldTypeName]: any }>(
   input: T
 ): T {
-  return input;
+  const res = Object.create(null);
+  Object.entries(input).forEach(([k, val]) => (res[k] = val));
+  Object.freeze(res);
+  return res;
 }
 
 export const fieldTypeConstructors = createConstructors({
@@ -45,7 +48,7 @@ export const fieldTypeConstructors = createConstructors({
 });
 
 function _isFieldTypeName(t: any): t is FieldTypeName {
-  return typeof t === 'string' && fieldTypeConstructors.hasOwnProperty(t);
+  return typeof t === 'string' && fieldTypeConstructors[t];
 }
 
 export const isFieldTypeName = memoize(_isFieldTypeName);

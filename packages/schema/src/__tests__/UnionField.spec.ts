@@ -173,7 +173,7 @@ describe('Union', () => {
             type: 'enum',
           },
         ],
-        description: '',
+
         list: false,
         optional: false,
         type: 'union',
@@ -192,7 +192,7 @@ describe('Union', () => {
             type: 'enum',
           },
         ],
-        description: '',
+
         list: false,
         optional: true,
         type: 'union',
@@ -211,7 +211,7 @@ describe('Union', () => {
             type: 'enum',
           },
         ],
-        description: '',
+
         list: true,
         optional: true,
         type: 'union',

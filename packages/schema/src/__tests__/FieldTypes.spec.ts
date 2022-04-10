@@ -85,6 +85,12 @@ describe('FieldTypes', () => {
         nameOpt: 'string?',
         nameList: '[string]',
         nameListOptional: '[string]?',
+        nameFromType: StringField.create().toList().toOptional(),
+        defObject: {
+          type: 'string',
+          optional: true,
+          list: true,
+        },
       } as const;
 
       const gql = schemaToGQL('TempString', def);
@@ -110,6 +116,8 @@ describe('FieldTypes', () => {
             nameOpt?: string | undefined;
             nameList: string[];
             nameListOptional?: string[] | undefined;
+            nameFromType?: string[] | undefined;
+            defObject?: string[] | undefined;
           }
         >
       >(true);

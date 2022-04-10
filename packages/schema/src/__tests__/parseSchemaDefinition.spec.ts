@@ -12,7 +12,7 @@ describe('parseSchemaDefinition', () => {
       stringOptional: 'string?',
       arrayString: '[string]',
       arrayStringOptional: '[string]?',
-      enum: ['a', 'b'],
+      enum: { enum: ['a', 'b'] },
       fieldType: EnumField.create(['a', 'x']),
       fieldTypeOptional: EnumField.create(['a', 'x']).toOptional(),
       fieldTypeOptionalList: EnumField.create(['a', 'x']).toList().toOptional(),
@@ -101,7 +101,6 @@ describe('parseSchemaDefinition', () => {
             type: 'int',
           },
         ],
-        description: '',
         list: false,
         optional: true,
         type: 'union',
@@ -116,10 +115,10 @@ describe('parseSchemaDefinition', () => {
     } as const);
 
     const sass = {
-      union: [[{ schema: { points: '[float]?' } }, 'int']],
+      union: [{ schema: { points: '[float]?' } }, 'int'],
       names: '[string]?',
       age: 'int',
-    };
+    } as const;
 
     const sut = parseSchemaDefinition({
       name: 'string',
@@ -130,7 +129,7 @@ describe('parseSchemaDefinition', () => {
         list: true,
       },
       schemaAsTypeList: {
-        type: otherSchema,
+        schema: otherSchema,
         list: true,
       },
       schemaAsSchema: {

@@ -113,7 +113,6 @@ export abstract class FieldType<
   };
 
   toSchemaFieldType = () => {
-    debugger
     return {
       type: this.type,
       def: this.def,

@@ -33,7 +33,13 @@ describe('parseSchemaField', () => {
         },
       })
     ).toEqual({
-      def: { name: 'string' },
+      def: {
+        name: {
+          list: false,
+          optional: false,
+          type: 'string',
+        },
+      },
       description: undefined,
       list: false,
       optional: false,
