@@ -10,8 +10,6 @@
 !.vscode/launch.json
 !.vscode/extensions.json
 
-lerna-debug.log
-
 # dependencies
 node_modules
 
@@ -61,6 +59,7 @@ local.properties
 #
 npm-debug.log
 yarn-error.log
+package-lock.json
 
 # BUCK
 buck-out/
@@ -75,4 +74,3 @@ webpack-stats.json
 
 # Modern Relay
 __generated__
-lib/
