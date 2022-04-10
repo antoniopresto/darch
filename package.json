@@ -6,7 +6,7 @@
     "lerna": "lerna",
     "bootstrap": "lerna bootstrap",
     "fix": "lerna run fix",
-    "alpha": "lerna publish --no-verify-access --conventional-graduate --dist-tag alpha --exact --yes --preid=alpha"
+    "alpha": "lerna publish --no-verify-access --conventional-graduate --canary --preid=alpha"
   },
   "devDependencies": {
     "eslint": "7.20.0",
