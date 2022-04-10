@@ -28,7 +28,7 @@ function createConstructors<T extends { [K in FieldTypeName]: any }>(
   return res;
 }
 
-export const fieldTypeConstructors = createConstructors({
+export const types = createConstructors({
   int: IntField,
   float: FloatField,
   string: StringField,
@@ -48,7 +48,7 @@ export const fieldTypeConstructors = createConstructors({
 });
 
 function _isFieldTypeName(t: any): t is FieldTypeName {
-  return typeof t === 'string' && fieldTypeConstructors[t];
+  return typeof t === 'string' && types[t];
 }
 
 export const isFieldTypeName = memoize(_isFieldTypeName);

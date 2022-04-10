@@ -9,7 +9,7 @@ import { isSchema, Schema } from './Schema';
 import { FieldDefinitionConfig, SchemaDefinitionInput } from './TSchemaConfig';
 import { fieldInstanceFromDef } from './fieldInstanceFromDef';
 
-import { fieldTypeConstructors } from './fields/fieldTypes';
+import { types } from './fields/fieldTypes';
 
 import {
   isStringFieldDefinition,
@@ -28,7 +28,7 @@ export function parseSchemaField<T extends FieldDefinitionConfig>(
   fieldName: string,
   definition: T,
   returnInstance: true
-): TAnyFieldType | null;
+): TAnyFieldType;
 
 export function parseSchemaField<T extends FieldDefinitionConfig>(
   fieldName: string,
@@ -44,8 +44,7 @@ export function parseSchemaField<T extends FieldDefinitionConfig>(
   }
 
   if (returnInstance) {
-    if (parsed) return instanceFromDef;
-    return null;
+    return instanceFromDef;
   }
 
   if (parsed) return parsed;
@@ -227,7 +226,7 @@ export function parseFlattenFieldDefinition(input: any) {
   for (let k in input) {
     const val = input[k];
 
-    if (fieldTypeConstructors[k]) {
+    if (types[k]) {
       type = k;
       def = val;
 

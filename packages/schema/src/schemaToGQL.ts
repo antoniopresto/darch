@@ -9,7 +9,7 @@ import {
 
 import { FieldType, TAnyFieldType } from './FieldType';
 import { SchemaDefinitionInput } from './TSchemaConfig';
-import { fieldTypeConstructors } from './fields/fieldTypes';
+import { types } from './fields/fieldTypes';
 import { parseSchemaDefinition } from './parseSchemaDefinition';
 
 import {
@@ -66,7 +66,7 @@ export function fieldToGraphql(params: {
     try {
       const def: any = field.def;
 
-      const typeConstructor = fieldTypeConstructors[
+      const typeConstructor = types[
         field.type
       ] as typeof FieldType;
 
@@ -76,7 +76,7 @@ export function fieldToGraphql(params: {
           {
             field,
             typeConstructor,
-            fieldTypeConstructors,
+            types,
           }
         );
       }

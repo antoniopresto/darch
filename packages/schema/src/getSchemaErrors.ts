@@ -1,5 +1,5 @@
 import type { Schema } from './Schema';
-import { fieldTypeConstructors, isFieldTypeName } from './fields/fieldTypes';
+import { types, isFieldTypeName } from './fields/fieldTypes';
 
 export function parseSchemaFields(params: {
   createSchema: (def: any) => { getErrors: Function; parse: Function };
@@ -90,7 +90,7 @@ export function parseSchemaFields(params: {
       throw new Error(`${definition.type} is not a valid type`);
     }
 
-    const Constructor = fieldTypeConstructors[definition.type];
+    const Constructor = types[definition.type];
     const fieldInstance = Constructor.create(definition.def);
     return {
       parsed: fieldInstance.parse(value),

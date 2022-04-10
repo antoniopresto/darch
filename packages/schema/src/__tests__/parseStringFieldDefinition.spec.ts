@@ -1,9 +1,9 @@
 import { getKeys } from '@darch/utils/lib/getKeys';
 
-import { fieldTypeConstructors } from '../fields/fieldTypes';
+import { types } from '../fields/fieldTypes';
 import { parseStringDefinition } from '../parseStringDefinition';
 
-const definitions = getKeys(fieldTypeConstructors)
+const definitions = getKeys(types)
   .map((type) => {
     return [
       [type, { type, optional: false, list: false }],
