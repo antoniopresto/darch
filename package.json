@@ -5,7 +5,8 @@
     "dev": "(cd ./packages/site && yarn dev)",
     "lerna": "lerna",
     "bootstrap": "lerna bootstrap",
-    "fix": "lerna run fix"
+    "fix": "lerna run fix",
+    "alpha": "lerna publish --no-verify-access --conventional-graduate --dist-tag alpha --exact --yes --preid=alpha"
   },
   "devDependencies": {
     "eslint": "7.20.0",
