@@ -12,30 +12,28 @@ describe('schemaToTypescript', () => {
       dates: '[date]',
       sex: [{ enum: ['m', 'f', 'o'] } /*TODO undefined*/],
       addresses: [
-        [
-          {
-            schema: {
-              kind: { enum: ['home'] },
-              street: 'string',
-              number: { enum: ['string', 'float'] },
-            },
-            optional: true,
-            list: true,
-            description: 'Home address',
+        {
+          schema: {
+            kind: { enum: ['home'] },
+            street: 'string',
+            number: ['string', 'float'],
           },
-          {
-            schema: {
-              kind: { enum: ['work'] },
-              week_days: { enum: ['0', '1', '2', '3', '4', '5', '6'] },
-              name: {
-                schema: {
-                  firstName: 'string',
-                  lastName: 'string',
-                },
+          optional: true,
+          list: true,
+          description: 'Home address',
+        },
+        {
+          schema: {
+            kind: { enum: ['work'] },
+            week_days: { enum: ['0', '1', '2', '3', '4', '5', '6'] },
+            name: {
+              schema: {
+                firstName: 'string',
+                lastName: 'string',
               },
             },
           },
-        ],
+        },
       ],
     } as const)
       .describe('My Custom Schema')

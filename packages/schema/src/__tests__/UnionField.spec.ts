@@ -56,7 +56,7 @@ describe('Union', () => {
     const subSchema = createSchema({ name: 'string' });
 
     const sut = createSchema({
-      foo: [['[string]?', subSchema]],
+      foo: ['[string]?', subSchema],
     } as const);
 
     expect(sut.parse({ foo: undefined })).toEqual({ foo: undefined });
@@ -134,7 +134,7 @@ describe('Union', () => {
         list: true,
       },
       union2: ['boolean', { enum: ['true', 'false'] }],
-      union2Optional: [['boolean?', { enum: ['true', 'false'] }]],
+      union2Optional: ['boolean?', { enum: ['true', 'false'] }],
       union3: {
         type: 'union',
         def: [{ enum: ['true', 'false'] }, 'boolean'],
@@ -321,7 +321,7 @@ describe('Union', () => {
           },
         ],
         list: true,
-        optional: false,
+        optional: true,
         type: 'union',
       },
     });

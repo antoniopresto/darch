@@ -177,7 +177,7 @@ function isUnionDefArray(input: any): input is [FieldDefinitionConfig[]] {
   if (!Array.isArray(input)) return false;
 
   if (!isProduction()) {
-    // verify against wrong enum definition
+    // verify against old enum definition
     input.forEach((el) => {
       if (typeof el === 'string' && !isStringFieldDefinition(el)) {
         throw new Error(
@@ -187,6 +187,13 @@ function isUnionDefArray(input: any): input is [FieldDefinitionConfig[]] {
         );
       }
     });
+
+    if (input.length === 1 && Array.isArray(input[0])) {
+      throw new Error(
+        `Defining union using one array withing another array (eg: [[type, type2, type3]]) is no more supported .` +
+          `  \nInstead, you can use:\n { union: [type1, type2, ...] }.\n`
+      );
+    }
   }
 
   return true;

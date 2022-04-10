@@ -12,24 +12,22 @@ describe('schemaToJSON', () => {
       dates: '[date]',
       sex: { enum: ['m', 'f', 'o'] },
       addresses: [
-        [
-          {
-            schema: {
-              kind: { enum: ['home'] },
-              street: 'string',
-              number: ['string', 'float'],
-            },
-            optional: true,
-            list: true,
-            description: 'Home address',
+        {
+          schema: {
+            kind: { enum: ['home'] },
+            street: 'string',
+            number: ['string', 'float'],
           },
-          {
-            schema: {
-              kind: { enum: ['work'] },
-              weekDays: { enum: ['0', '1', '2', '3', '4', '5', '6'] },
-            },
+          optional: true,
+          list: true,
+          description: 'Home address',
+        },
+        {
+          schema: {
+            kind: { enum: ['work'] },
+            weekDays: { enum: ['0', '1', '2', '3', '4', '5', '6'] },
           },
-        ],
+        },
       ],
     })
       .describe('My Custom Schema')

@@ -105,7 +105,7 @@ export interface User {
   letterOptionalList?: ("x" | "y" | "z")[];
   optionalAddress?: {
     street: string;
-    number?: number;
+    number?: string | number;
   };
   deliveryAddress: {
     street: string;
@@ -165,7 +165,14 @@ export interface User {
         additionalProperties: false,
         properties: {
           number: {
-            type: 'integer',
+            anyOf: [
+              {
+                type: 'string',
+              },
+              {
+                type: 'integer',
+              },
+            ],
           },
           street: {
             type: 'string',
