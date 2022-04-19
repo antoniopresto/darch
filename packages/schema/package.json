@@ -1,6 +1,6 @@
 {
   "name": "@darch/schema",
-  "version": "1.0.34",
+  "version": "2.0.0-rc1",
   "main": "lib/index.js",
   "module": "lib/module/index.js",
   "author": "antoniopresto <antoniopresto@gmail.com>",
@@ -27,10 +27,10 @@
     "inference"
   ],
   "dependencies": {
-    "@darch/utils": "1.0.34"
+    "@darch/utils": "^2.0.0-rc1"
   },
   "devDependencies": {
-    "@darch/builder": "^1.0.31",
+    "@darch/builder": "^2.0.0-rc1",
     "@types/jest": "27.0.3",
     "@types/node": "16.11.12",
     "@typescript-eslint/eslint-plugin": "4.15.2",

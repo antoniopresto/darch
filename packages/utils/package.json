@@ -1,6 +1,6 @@
 {
   "name": "@darch/utils",
-  "version": "1.0.34",
+  "version": "2.0.0-rc1",
   "main": "lib",
   "typings": "lib",
   "author": "antoniopresto <antoniopresto@gmail.com>",
@@ -23,7 +23,7 @@
     "ulid": "2.3.0"
   },
   "devDependencies": {
-    "@darch/builder": "^1.0.31",
+    "@darch/builder": "^2.0.0-rc1",
     "@types/jest": "27.0.3",
     "@types/lodash": "4.14.178",
     "@types/node": "16.11.12",
