@@ -1,6 +1,6 @@
 {
   "name": "@darch/schema",
-  "version": "2.0.0-alpha.70",
+  "version": "2.0.0-alpha.71",
   "main": "lib/index.js",
   "module": "lib/module/index.js",
   "browser": {
@@ -39,7 +39,7 @@
     "inference"
   ],
   "dependencies": {
-    "@darch/utils": "2.0.0-alpha.70"
+    "@darch/utils": "^2.0.0-alpha.71"
   },
   "devDependencies": {
     "@babel/cli": "7.18.6",
@@ -47,7 +47,7 @@
     "@babel/plugin-transform-typescript": "7.18.6",
     "@babel/preset-env": "7.18.6",
     "@babel/preset-typescript": "7.18.6",
-    "@darch/builder": "^2.0.0-alpha.69+dde14eb",
+    "@darch/builder": "^2.0.0-alpha.71",
     "@types/babel__core": "7.1.19",
     "@types/babel__helper-plugin-utils": "7.10.0",
     "@types/express": "4.17.13",
